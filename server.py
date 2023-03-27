@@ -1,4 +1,6 @@
 import socket
+from utils.headers import *
+from utils.http import *
 
 class ServerConfig:
   def __init__(self, 
@@ -12,10 +14,22 @@ class ServerConfig:
     self.listen = listen
     self.pack_size = pack_size
     self.charset = charset
+    self.methods = "GET, POST, OPTIONS"
     
 class Server:
   def __init__(self, config: ServerConfig):
     self.config = config
+    self.methods = {
+      "GET" : self.handle_get,
+      "POST" : self.handle_post,
+      "OPTIONS" :self.handle_options
+    }
+    
+  def methods_to_str(self):
+    result = ""
+    for method in self.methods.keys():
+      result += method + ", "
+    result = result[:-2]
   
   def start(self):
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -35,8 +49,20 @@ class Server:
     
   def handle_connection(self, connection):
     data = connection.recv(self.config.pack_size).decode(self.config.charset)
-    print(data)
-    connection.send(data.encode(self.config.charset))
+    headers = HttpHeaders()
+    headers.add_header(access_control_allow_methods, self.methods_to_str)
+    headers.add_header(access_control_allow_origin, "https://my-cool-site.com")
+    
+    connection.send(str(HttpResponse(HttpHeaders(), "Hello World")).encode(self.config.charset))
+  
+  def handle_get():
+    pass
+  
+  def handle_post():
+    pass
+  
+  def handle_options():
+    pass
     
 if __name__ == "__main__":
   server = Server(ServerConfig())
