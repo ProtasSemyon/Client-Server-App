@@ -27,7 +27,7 @@ class HttpResponse:
       case SUCCESS:
         response += "OK"
         response += "\r\n"
-    return response + f"{str(self.headers)}\r\n\r\n{str(self.content)}"
+    return response + f"{str(self.headers)}\r\n{str(self.content)}"
   
 class HttpRequest:
   def __init__(self, headers, content, method, uri):

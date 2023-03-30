@@ -49,11 +49,12 @@ class Server:
     
   def handle_connection(self, connection):
     data = connection.recv(self.config.pack_size).decode(self.config.charset)
+    print(data)
     headers = HttpHeaders()
-    headers.add_header(access_control_allow_methods, self.methods_to_str)
+    headers.add_header(access_control_allow_methods, self.methods_to_str())
     headers.add_header(access_control_allow_origin, "https://my-cool-site.com")
     
-    connection.send(str(HttpResponse(HttpHeaders(), "Hello World")).encode(self.config.charset))
+    connection.send(str(HttpResponse(headers, data)).encode(self.config.charset))
   
   def handle_get():
     pass
