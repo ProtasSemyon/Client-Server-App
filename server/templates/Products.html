@@ -24,8 +24,8 @@
               <td> <input type=text name=brand value={{product.brand}}> </td>
               <td> <input type=text name=category value={{product.category}}> </td>
               <td> <input type=text name=description value={{product.description}}> </td>
-              <td> <input type=text name=price value={{product.price}}> </td>
-              <td> <input type=text name=stock_quantity value={{product.stock_quantity}}> </td>
+              <td> <input type=number step=0.01 name=price value={{product.price}}> </td>
+              <td> <input type=number step=1 name=stock_quantity value={{product.stock_quantity}}> </td>
 
               <td> <button type="submit" name="action" value="/update">Update</button></td>
               <td> <button type="submit" name="action" value="/delete">Delete</button></td>
@@ -38,8 +38,8 @@
           <td> <input type=text name=brand>  </td>
           <td> <input type=text name=category>      </td>
           <td> <input type=text name=description> </td>
-          <td> <input type=text name=price> </td>
-          <td> <input type=text name=stock_quantity> </td>
+          <td> <input type=number step=0.01 value=0.0 name=price> </td>
+          <td> <input type=number step=1 value=0 name=stock_quantity> </td>
           <td> <button type="submit" name="action" value="/add">Add</button></td>
         </form>
       </table>

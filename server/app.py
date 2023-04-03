@@ -47,19 +47,13 @@ async def update_customers(request: Request, db: Session = Depends(get_session))
       db.rollback()
       error_message = e.args
   elif action =='/add':
-    customer = Customers(first_name=str(form_data.get('first_name')), 
-                         last_name=str(form_data.get('last_name')), 
-                         email=str(form_data.get('email')), 
-                         phone=str(form_data.get('phone')))
+    customer = Customers(form_data)
     db.add(customer)
     db.commit()
   elif action == '/update':
     statement = select(Customers).where(Customers.customer_id == key)
     customer = db.exec(statement).one()
-    customer.first_name = str(form_data.get('first_name'))
-    customer.last_name = str(form_data.get('last_name'))
-    customer.email = str(form_data.get('email'))
-    customer.phone = str(form_data.get('phone'))
+    customer.set_value_from_form(form_data)
     
     db.add(customer)
     db.commit()
@@ -74,3 +68,34 @@ async def get_products(request: Request, db: Session = Depends(get_session)):
   smth = select(Products)
   result = db.exec(smth).all()
   return templates.TemplateResponse("Products.html", {"request":request,"products":result})
+
+@app.post(path='/products', response_class=HTMLResponse)
+async def update_products(request: Request, db: Session = Depends(get_session)):
+  error_message = ""
+  form_data = await request.form()
+  action = form_data.get('action')
+  key = form_data.get('id')
+  if action == '/delete':
+    statement = select(Products).where(Products.product_id == key)
+    result = db.exec(statement).one()
+    try:
+      db.delete(result)
+      db.commit()
+    except IntegrityError as e:
+      db.rollback()
+      error_message = e.args
+  elif action =='/add':
+    products = Products(form_data)
+    db.add(products)
+    db.commit()
+  elif action == '/update':
+    statement = select(Products).where(Products.product_id == key)
+    products = db.exec(statement).one()
+    products.set_value_from_form(form_data)
+    
+    db.add(products)
+    db.commit()
+    
+  smth = select(Products)
+  result = db.exec(smth).all()
+  return templates.TemplateResponse("Products.html", {"request":request,"products":result, "error_message":error_message})
