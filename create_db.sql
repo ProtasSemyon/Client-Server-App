@@ -44,3 +44,16 @@ VALUES
     ('Tech Company', 'Bob Johnson', 'bjohnson@techco.com', '555-4321'),
     ('TechMart', 'Alice Brown', 'abrown@techmart.com', '555-8765'),
     ('ElectroWorld', 'Mike Wilson', 'mwilson@electroworld.com', '555-1111');
+
+INSERT INTO product_suppliers (product_id, supplier_id) 
+VALUES
+(2, 5),
+(1, 2),
+(4, 4),
+(5, 1),
+(1, 4),
+(3, 3),
+(2, 3),
+(1, 5),
+(3, 4),
+(4, 2);

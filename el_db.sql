@@ -46,7 +46,6 @@ CREATE TABLE product_suppliers (
     product_supplier_id SERIAL PRIMARY KEY,
     product_id INTEGER NOT NULL,
     supplier_id INTEGER NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (product_id) REFERENCES products(product_id),
     FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)
 );
