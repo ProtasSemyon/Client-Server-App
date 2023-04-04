@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 <html>
   <head>
-      <title>Customers</title>
+      <title>Orders</title>
   </head>
   <body>
-      <h1>Customers</h1>
+      <h1>Orders</h1>
       {{error_message}}
       <table>
         <th>
-          <td>First name</td>
-          <td>Last name</td>
-          <td>E-mail</td>
-          <td>Phone</td>
+          <td>Customer</td>
+          <td>Order date</td>
+          <td>Total amount</td>
         </th>
-        {% for customer in customers %}
+        {% for (order, customer1) in orders %}
           <form method="POST">
             <tr>
-              <input type="hidden" name="id" value={{customer.customer_id}}>
-              <td> {{customer.customer_id}}</td>
-              <td> <input type=text name=first_name value={{customer.first_name}}> </td> 
-              <td> <input type=text name=last_name value={{customer.last_name}}>  </td>
-              <td> <input type=text name=email value={{customer.email}}>      </td>
-              <td> <input type=text name=phone value={{customer.phone}}>      </td>
+              <input type="hidden" name="id" value={{order.order_id}}>
+              <td> {{order.order_id}}</td>
+              <td> <select name="customer_id">
+                <option value={{customer1.customer_id}} selected hidden>{{customer1.first_name}} {{customer1.last_name}}</option>
+                {% for customer in customers %}
+                <option value={{customer.customer_id}}>{{customer.first_name}} {{customer.last_name}}</option>
+                {% endfor %}
+              </select> </td> 
+              <td> <input type=date name=order_date value={{order.order_date}}>  </td>
+              <td> <input type=number step=0.01 name=total_amount value={{order.total_amount}}> </td>
               <td> <button type="submit" name="action" value="/update">Update</button></td>
               <td> <button type="submit" name="action" value="/delete">Delete</button></td>
             </tr>
@@ -29,12 +32,19 @@
         {% endfor %}
         <form method="POST">
           <td></td>
-          <td> <input type=text name=first_name> </td> 
-          <td> <input type=text name=last_name>  </td>
-          <td> <input type=text name=email>      </td>
-          <td> <input type=text name=phone> </td>
+          <td> <select name="customer_id">
+            <option value="" selected disabled hidden>Choose a customer</option>
+            {% for customer in customers %}
+            <option value={{customer.customer_id}}>{{customer.first_name}} {{customer.last_name}}</option>
+            {% endfor %}
+          </select> </td>
+          <td> <input type=date value="2023-01-01" name=order_date>  </td>
+          <td> <input type=number step=0.01 value=0.00 name=total_amount>      </td>
           <td> <button type="submit" name="action" value="/add">Add</button></td>
         </form>
       </table>
+      <form action="/navigate" method="get">
+        <button type="submit" name="page" value="/">Main page</button>
+      </form>
   </body>
 </html>
