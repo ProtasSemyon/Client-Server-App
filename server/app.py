@@ -12,9 +12,30 @@ from server.base.Products import Products
 from server.base.Suppliers import Suppliers
 from server.base.ProductSuppliers import ProductSuppliers
 
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s',
+    filename='app.log',
+    filemode='a'
+)
 
 templates = Jinja2Templates(directory='server/templates')
 app = FastAPI()
+
+logger = logging.getLogger("uvicorn.access")
+logger.setLevel(logging.INFO)
+
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+handler2 = logging.FileHandler('app.log')
+handler2.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+#logger.addHandler(handler)
+logger.addHandler(handler2)
+
 
 
 @app.get(path='/', response_class=HTMLResponse)
