@@ -11,3 +11,12 @@ class SuppliersModel(SQLModel):
   
 class Suppliers(SuppliersModel, table=True):
   __tablename__ : str = 'suppliers'
+  
+  def __init__(self, form_data):
+    self.set_value_from_form(form_data)
+  
+  def set_value_from_form(self, form_data):
+    self.supplier_name = str(form_data.get('supplier_name'))
+    self.contact_name = str(form_data.get('contact_name'))
+    self.email = str(form_data.get('email'))
+    self.phone = str(form_data.get('phone'))

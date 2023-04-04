@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html>
   <head>
-      <title>Customers</title>
+      <title>Product Suppliers</title>
   </head>
   <body>
-      <h1>Customers</h1>
+      <h1>Product Suppliers</h1>
       {{error_message}}
       <table>
         <th>
-          <td>First name</td>
-          <td>Last name</td>
-          <td>E-mail</td>
-          <td>Phone</td>
+          <td>Product name</td>
+          <td>Supplier name</td>
         </th>
-        {% for customer in customers %}
+        {% for (product_supplier, product1, supplier1) in product_suppliers %}
           <form method="POST">
             <tr>
-              <input type="hidden" name="id" value={{customer.customer_id}}>
-              <td> {{customer.customer_id}}</td>
-              <td> <input type=text name=first_name value={{customer.first_name}}> </td> 
-              <td> <input type=text name=last_name value={{customer.last_name}}>  </td>
-              <td> <input type=text name=email value={{customer.email}}>      </td>
-              <td> <input type=text name=phone value={{customer.phone}}>      </td>
+              <input type="hidden" name="id" value={{product_supplier.product_supplier_id}}>
+              <td> {{product_supplier.product_supplier_id}}</td>
+              <td> <select name="product_id">
+                <option value={{product1.product_id}} selected hidden>{{product1.product_name}}</option>
+                {% for product in products %}
+                <option value={{product.product_id}}>{{product.product_name}}</option>
+                {% endfor %}
+              </select></td>
+              <td> <select name="supplier_id">
+                <option value={{supplier1.supplier_id}} selected hidden>{{supplier1.supplier_name}}</option>
+                {% for supplier in suppliers %}
+                <option value={{supplier.supplier_id}}>{{supplier.supplier_name}}</option>
+                {% endfor %}
+              </select></td>               
               <td> <button type="submit" name="action" value="/update">Update</button></td>
               <td> <button type="submit" name="action" value="/delete">Delete</button></td>
             </tr>
@@ -29,10 +35,18 @@
         {% endfor %}
         <form method="POST">
           <td></td>
-          <td> <input type=text name=first_name> </td> 
-          <td> <input type=text name=last_name>  </td>
-          <td> <input type=text name=email>      </td>
-          <td> <input type=text name=phone> </td>
+          <td> <select name=product_id>
+            <option value="" selected disabled hidden>Choose a value</option>
+            {% for product in products %}
+            <option value={{product.product_id}}>{{product.product_name}}</option>
+            {% endfor %}
+          </select></td> 
+          <td> <select name=supplier_id>
+            <option value="" selected disabled hidden>Choose a value</option>
+            {% for supplier in suppliers %}
+            <option value={{supplier.supplier_id}}>{{supplier.supplier_name}}</option>
+            {% endfor %}
+          </select></td> 
           <td> <button type="submit" name="action" value="/add">Add</button></td>
         </form>
       </table>

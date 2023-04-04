@@ -9,6 +9,8 @@ from server.base.Customers import Customers
 from server.base.OrderItems import OrderItems
 from server.base.Orders import Orders
 from server.base.Products import Products
+from server.base.Suppliers import Suppliers
+from server.base.ProductSuppliers import ProductSuppliers
 
 
 templates = Jinja2Templates(directory='server/templates')
@@ -58,7 +60,6 @@ async def update_customers(request: Request, db: Session = Depends(get_session))
     db.add(customer)
     db.commit()
     
-    
   smth = select(Customers)
   result = db.exec(smth).all()
   return templates.TemplateResponse("Customers.html", {"request":request,"customers":result, "error_message":error_message})
@@ -99,3 +100,86 @@ async def update_products(request: Request, db: Session = Depends(get_session)):
   smth = select(Products)
   result = db.exec(smth).all()
   return templates.TemplateResponse("Products.html", {"request":request,"products":result, "error_message":error_message})
+
+@app.get(path='/suppliers', response_class=HTMLResponse)
+async def get_suppliers(request: Request, db: Session = Depends(get_session)):
+  smth = select(Suppliers)
+  result = db.exec(smth).all()
+  return templates.TemplateResponse("Suppliers.html", {"request":request,"suppliers":result})
+
+@app.post(path='/suppliers', response_class=HTMLResponse)
+async def update_suppliers(request: Request, db: Session = Depends(get_session)):
+  error_message = ""
+  form_data = await request.form()
+  action = form_data.get('action')
+  key = form_data.get('id')
+  if action == '/delete':
+    statement = select(Suppliers).where(Suppliers.supplier_id == key)
+    result = db.exec(statement).one()
+    try:
+      db.delete(result)
+      db.commit()
+    except IntegrityError as e:
+      db.rollback()
+      error_message = e.args
+  elif action =='/add':
+    supplier = Suppliers(form_data)
+    db.add(supplier)
+    db.commit()
+  elif action == '/update':
+    statement = select(Suppliers).where(Suppliers.supplier_id == key)
+    supplier = db.exec(statement).one()
+    supplier.set_value_from_form(form_data)
+    
+    db.add(supplier)
+    db.commit()
+    
+  smth = select(Suppliers)
+  result = db.exec(smth).all()
+  return templates.TemplateResponse("Suppliers.html", {"request":request,"suppliers":result, "error_message":error_message})
+
+@app.get(path='/product_suppliers', response_class=HTMLResponse)
+async def get_product_suppliers(request: Request, db: Session = Depends(get_session)):
+  smth = select(ProductSuppliers, Products, Suppliers).join(Products).join(Suppliers)
+  products_st = select(Products)
+  suppliers_st = select(Suppliers)
+  result = db.exec(smth).all()
+  products = db.exec(products_st).all()
+  suppliers = db.exec(suppliers_st).all()
+  return templates.TemplateResponse("ProductSuppliers.html", {"request":request,"product_suppliers":result, "products":products, "suppliers":suppliers})
+
+@app.post(path='/product_suppliers', response_class=HTMLResponse)
+async def update_product_suppliers(request: Request, db: Session = Depends(get_session)):
+  error_message = ""
+  form_data = await request.form()
+  action = form_data.get('action')
+  key = form_data.get('id')
+  if action == '/delete':
+    statement = select(ProductSuppliers).where(ProductSuppliers.product_supplier_id == key)
+    result = db.exec(statement).one()
+    try:
+      db.delete(result)
+      db.commit()
+    except IntegrityError as e:
+      db.rollback()
+      error_message = e.args
+  elif action =='/add':
+    product_supplier = ProductSuppliers(form_data)
+    db.add(product_supplier)
+    db.commit()
+  elif action == '/update':
+    statement = select(ProductSuppliers).where(ProductSuppliers.product_supplier_id == key)
+    product_supplier = db.exec(statement).one()
+    product_supplier.set_value_from_form(form_data)
+    
+    db.add(product_supplier)
+    db.commit()
+    
+  smth = select(ProductSuppliers, Products, Suppliers).join(Products).join(Suppliers)
+  products_st = select(Products)
+  suppliers_st = select(Suppliers)
+  result = db.exec(smth).all()
+  products = db.exec(products_st).all()
+  suppliers = db.exec(suppliers_st).all()
+  return templates.TemplateResponse("ProductSuppliers.html", {"request":request,"product_suppliers":result, "products":products, "suppliers":suppliers, "error_message":error_message})
+  
