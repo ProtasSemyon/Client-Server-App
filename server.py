@@ -66,7 +66,11 @@ class Server:
       logger.info("Server shutdown")
           
   def handle_connection(self, connection: socket.socket):
-    request = connection.recv(self.config.pack_size)
+    request = b''
+    while True:
+      data = connection.recv(self.config.pack_size)
+      if not data: break
+      request += data
     
     first_str, headers, body = parse_headers(request)
     
@@ -108,33 +112,6 @@ class Server:
       f.close()
     return self.send_ok(connection, headers)
   
-  def detect_type_of_file(self, filename):
-    extension = os.path.splitext(filename)[1]
-    if type(extension) is bytes:
-      extension = extension.decode('utf-8')
-    
-    match extension:
-      case '.html':
-        return 'text/html'
-      case '.json':
-        return 'application/json'
-      case '.png':
-        return 'image/png'
-      case '.jpg':
-        return 'image/jpeg'
-      case '.jpeg':
-        return 'image/jpeg'
-      case '.css':
-        return 'text/css'
-      case '.js':
-        return 'text/javascript'
-      case '.svg':
-        return 'image/svg+xml'
-      case '.gif':
-        return 'image/gif'
-      case _:
-        return 'text/plain'
-  
   def send_get(self, connection, uri, headers):
     if uri == b'/':
       return self.send_ok(connection, headers)
@@ -145,7 +122,7 @@ class Server:
     try:
       with open(filename, 'rb') as file:
         new_headers = HttpHeaders(default_server_headers)
-        file_ext = self.detect_type_of_file(filename)
+        file_ext = detect_type_of_file(filename) # type: ignore
         new_headers.add_header(content_type, file_ext)
         connection.send(bytes(HttpResponse(new_headers)))
         connection.sendfile(file)

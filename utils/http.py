@@ -1,13 +1,41 @@
 from builtins import bytes # type: ignore
-
+import os
 
 SUCCESS = 200
 NOT_FOUND = 404
 BAD_REQUEST = 400
 ACCEPTED = 202
 VERSION = "1.1"
+    
+    
 
-
+def detect_type_of_file(filename):
+  extension = os.path.splitext(filename)[1]
+  if type(extension) is bytes:
+    extension = extension.decode('utf-8')
+  
+  match extension:
+    case '.html':
+      return 'text/html'
+    case '.json':
+      return 'application/json'
+    case '.png':
+      return 'image/png'
+    case '.jpg':
+      return 'image/jpeg'
+    case '.jpeg':
+      return 'image/jpeg'
+    case '.css':
+      return 'text/css'
+    case '.js':
+      return 'text/javascript'
+    case '.svg':
+      return 'image/svg+xml'
+    case '.gif':
+      return 'image/gif'
+    case _:
+      return 'text/plain'
+    
 def parse_headers(package: bytes):
   delim1 = b'\r\n\r\n'
   index = package.find(delim1)
@@ -64,9 +92,20 @@ class HttpResponse:
   def __bytes__(self):
     response = f"HTTP/{VERSION} {str(self.status)} "
     match self.status:
-      case SUCCESS:
+      case 200:
         response += "OK"
         response += "\r\n"
+      case 400:
+        response += "Bad Request"
+        response += "\r\n"
+      case 404:
+        response += "Not Found"
+        response += "\r\n"
+      case 202:
+        response += "Accepted"
+        response += "\r\n"
+
+      
     headers = (response + f"{str(self.headers)}\r\n").encode('utf-8')
     return headers + self.content
       
