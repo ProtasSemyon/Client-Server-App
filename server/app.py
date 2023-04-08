@@ -3,14 +3,14 @@ from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select # type: ignore
 from fastapi import FastAPI, Request, Depends, responses
 from fastapi.responses import HTMLResponse
-from server.db_connect import get_session
+from db_connect import get_session
 
-from server.base.Customers import Customers
-from server.base.OrderItems import OrderItems
-from server.base.Orders import Orders
-from server.base.Products import Products
-from server.base.Suppliers import Suppliers
-from server.base.ProductSuppliers import ProductSuppliers
+from base.Customers import Customers
+from base.OrderItems import OrderItems
+from base.Orders import Orders
+from base.Products import Products
+from base.Suppliers import Suppliers
+from base.ProductSuppliers import ProductSuppliers
 
 import logging
 
@@ -23,7 +23,7 @@ logging.basicConfig(
 
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
 
-templates = Jinja2Templates(directory='server/templates')
+templates = Jinja2Templates(directory='./templates')
 app = FastAPI()
 
 logger = logging.getLogger("uvicorn.access")
@@ -42,7 +42,7 @@ logger.addHandler(handler2)
 
 @app.get(path='/', response_class=HTMLResponse)
 async def route(request: Request):
-  with open("server/index.html", "r") as f:
+  with open("./index.html", "r") as f:
     html_content = f.read()
   return HTMLResponse(content=html_content)
 
@@ -235,7 +235,7 @@ async def update_orders(request: Request, db: Session = Depends(get_session)):
   elif action == '/update':
     statement = select(Orders).where(Orders.order_id == key)
     order = db.exec(statement).one()
-    order.set_value_from_form(form_data)
+    order.set_value_from_form(form_data) # type: ignore
     db.add(order)
     db.commit()
     
@@ -244,5 +244,45 @@ async def update_orders(request: Request, db: Session = Depends(get_session)):
   customers = db.exec(select(Customers)).all()
   return templates.TemplateResponse("Orders.html", {"request":request,"orders":result, "customers":customers, "error_message":error_message})
     
-  
+@app.get(path='/order_items', response_class=HTMLResponse)
+async def get_order_items(request: Request, db: Session = Depends(get_session)):
+  smth = select(OrderItems, Orders, Products).join(Orders).join(Products)
+  result = db.exec(smth).all()
+  products = db.exec(select(Products)).all()
+  orders = db.exec(select(Orders)).all()
+
+  return templates.TemplateResponse("OrderItems.html", {"request":request,"order_items":result, "products":products, "orders":orders})
+
+@app.post(path='/order_items', response_class=HTMLResponse)
+async def update_order_items(request: Request, db: Session = Depends(get_session)):
+  error_message = ""
+  form_data = await request.form()
+  action = form_data.get('action')
+  key = form_data.get('id')
+  if action == '/delete':
+    statement = select(OrderItems).where(OrderItems.order_item_id == key)
+    result = db.exec(statement).one()
+    try:
+      db.delete(result)
+      db.commit()
+    except IntegrityError:
+      db.rollback()
+      error_message = ERROR_MESSAGE
+  elif action =='/add':
+    order_items = OrderItems(form_data)
+    db.add(order_items)
+    db.commit()
+  elif action == '/update':
+    statement = select(OrderItems).where(OrderItems.order_item_id == key)
+    order_items = db.exec(statement).one()
+    order_items.set_value_from_form(form_data)
+    db.add(order_items)
+    db.commit()
+    
+  smth = select(OrderItems, Orders, Products).join(Orders).join(Products)
+  result = db.exec(smth).all()
+  products = db.exec(select(Products)).all()
+  orders = db.exec(select(Orders)).all()
+
+  return templates.TemplateResponse("OrderItems.html", {"request":request,"order_items":result, "products":products, "orders":orders})
   

@@ -11,6 +11,16 @@ class OrderItemsModel(SQLModel):
   
 class OrderItems(OrderItemsModel, table=True):
   __tablename__ : str = 'order_items'
+  
+  def __init__(self, form_data):
+    self.set_value_from_form(form_data)
+  
+  def set_value_from_form(self, form_data):
+    self.order_id = int(form_data.get('order_id'))
+    self.product_id = int(form_data.get('product_id'))
+    self.quantity = int(form_data.get('quantity'))
+    self.price = float(form_data.get('price'))
+
 
   
   

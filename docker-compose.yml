@@ -1,0 +1,29 @@
+version: '3'
+services:
+  db:
+    image: postgres:15
+    environment:  
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes: 
+        - ./create_db.sql:/docker-entrypoint-initdb.d/create_db.sql
+    networks:
+      - gigachad
+
+  server:
+    command:
+      - "--host=0.0.0.0"
+    image: gigachadserver/html-templating
+    build:
+      context: "./server"
+    environment:  
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB_HOST: db
+      POSTGRES_DB_NAME: postgres
+    networks:
+      - gigachad
+    ports:
+      - 127.0.0.1:8000:8000
+networks:
+  gigachad: {}
