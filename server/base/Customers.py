@@ -1,4 +1,13 @@
 from typing import Optional
+from sqlalchemy.exc import IntegrityError
+from fastapi.templating import Jinja2Templates
+from sqlmodel import Session, select # type: ignore
+from fastapi import APIRouter, Request, Depends, responses
+from fastapi.responses import HTMLResponse
+from db_connect import get_session
+templates = Jinja2Templates(directory='./templates')
+ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
+
 from sqlmodel import Field, SQLModel
 
 class CustomersModel(SQLModel):
@@ -19,5 +28,46 @@ class Customers(CustomersModel, table=True):
     self.last_name = str(form_data.get('last_name'))
     self.email = str(form_data.get('email'))
     self.phone = str(form_data.get('phone'))
+    
+
+router = APIRouter()
+
+@router.get(path='/customers', response_class=HTMLResponse)
+async def get_customers(request: Request, db: Session = Depends(get_session)):
+  smth = select(Customers)
+  result = db.exec(smth).all()
+  return templates.TemplateResponse("Customers.html", {"request":request,"customers":result})
+
+@router.post(path='/customers', response_class=HTMLResponse)
+async def update_customers(request: Request, db: Session = Depends(get_session)):
+  error_message = ""
+  form_data = await request.form()
+  action = form_data.get('action')
+  key = form_data.get('id')
+  if action == '/delete':
+    statement = select(Customers).where(Customers.customer_id == key)
+    result = db.exec(statement).one()
+    try:
+      db.delete(result)
+      db.commit()
+    except IntegrityError as e:
+      db.rollback()
+      error_message = ERROR_MESSAGE
+  elif action =='/add':
+    customer = Customers(form_data)
+    db.add(customer)
+    db.commit()
+  elif action == '/update':
+    statement = select(Customers).where(Customers.customer_id == key)
+    customer = db.exec(statement).one()
+    customer.set_value_from_form(form_data)
+    
+    db.add(customer)
+    db.commit()
+    
+  smth = select(Customers)
+  result = db.exec(smth).all()
+  return templates.TemplateResponse("Customers.html", {"request":request,"customers":result, "error_message":error_message})
+
 
   
