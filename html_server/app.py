@@ -46,8 +46,10 @@ html_template_dict = {
   'suppliers':'Suppliers.html',
 }
 
+HTTP = 'http://'
+
 @app.get(path='/', response_class=HTMLResponse)
-async def route(request: Request):
+async def route():
   with open("./index.html", "r") as f:
     html_content = f.read()
   return HTMLResponse(content=html_content)
@@ -60,7 +62,7 @@ async def navigate(page: str):
 async def get_page(request: Request, path: str):
   if path not in html_template_dict.keys():
     return HTMLResponse(status_code=404)
-  response = requests.get('http://' + str(rest_url) + '/' + path)
+  response = requests.get(HTTP + str(rest_url) + '/' + path)
   json_data = json.loads(jsonable_encoder(response.content))
   json_data.update({"request":request})
   return templates.TemplateResponse(html_template_dict[path], json_data)
@@ -69,16 +71,16 @@ async def get_page(request: Request, path: str):
 @app.post(path='/{path}', response_class=HTMLResponse)
 async def post_page(request: Request, path: str):
   form = await request.form()
-  _method = form.get('_method')
   _id = form.get('id')
   
   match(form.get('_method')):
     case 'PUT':
-      response = requests.put('http://' + str(rest_url) + '/' + path + '/' + str(_id))
+      response = requests.put(HTTP + str(rest_url) + '/' + path + (('/' + str(_id)) if _id is not None else ''), data=form)
+    case 'DELETE':
+      response = requests.delete(HTTP + str(rest_url) + '/' + path + '/' + str(_id))
     case _:
-      pass
+      return HTMLResponse(status_code=405)
     
-  json_data = jsonable_encoder(form)
-  with open("./index.html", "r") as f:
-    html_content = f.read()
-  return HTMLResponse(content=html_content)
+  json_data = json.loads(jsonable_encoder(response.content))
+  json_data.update({"request":request})
+  return templates.TemplateResponse(html_template_dict[path], json_data)

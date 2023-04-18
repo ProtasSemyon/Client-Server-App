@@ -1,13 +1,10 @@
 from typing import Optional
 from sqlalchemy.exc import IntegrityError
-from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select # type: ignore
 from fastapi import APIRouter, Request, Depends, responses
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 
 from db_connect import get_session
-templates = Jinja2Templates(directory='./templates')
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
 
 from sqlmodel import Field, SQLModel
@@ -35,44 +32,52 @@ class Customers(CustomersModel, table=True):
 router = APIRouter()
 
 @router.get(path='/customers', response_class=JSONResponse)
-async def get_customers(request: Request, db: Session = Depends(get_session)):
+async def get_customers(db: Session = Depends(get_session)):
   smth = select(Customers)
   result = db.exec(smth).all()
   return {"customers":result}
 
-@router.post(path='/customers', response_class=HTMLResponse)
-async def update_customers(request: Request, db: Session = Depends(get_session)):
-  error_message = ""
-  form_data = await request.form()
-  action = form_data.get('_method')
-  key = form_data.get('id')
-  
-  if action == 'DELETE':
-    statement = select(Customers).where(Customers.customer_id == key)
-    result = db.exec(statement).one()
-    try:
-      db.delete(result)
-      db.commit()
-    except IntegrityError as e:
-      db.rollback()
-      error_message = ERROR_MESSAGE
-  elif action =='POST':
-    customer = Customers(form_data)
-    db.add(customer)
+@router.delete(path='/customers/{customer_id}', response_class=JSONResponse)
+async def delete_customer(customer_id, db: Session = Depends(get_session)):
+  customer_id = int(customer_id)
+  statement = select(Customers).where(Customers.customer_id == customer_id)
+  result = db.exec(statement).one()
+  try:
+    db.delete(result)
     db.commit()
-  elif action == 'PUT':
-    print('post customers')
-
-    statement = select(Customers).where(Customers.customer_id == key)
-    customer = db.exec(statement).one()
-    customer.set_value_from_form(form_data)
-    
-    db.add(customer)
-    db.commit()
+  except IntegrityError as e:
+    db.rollback()
     
   smth = select(Customers)
   result = db.exec(smth).all()
-  return templates.TemplateResponse("Customers.html", {"request":request,"customers":result, "error_message":error_message})
+  return {"customers":result, "error_message":ERROR_MESSAGE}
+
+@router.put(path='/customers/{customer_id}', response_class=JSONResponse)
+async def update_customer(request: Request, customer_id, db: Session = Depends(get_session)):
+  form_data = await request.form()
+
+  statement = select(Customers).where(Customers.customer_id == customer_id)
+  customer = db.exec(statement).one()
+  customer.set_value_from_form(form_data)
+  
+  db.add(customer)
+  db.commit()
+  
+  smth = select(Customers)
+  result = db.exec(smth).all()
+  return {"customers":result}
+ 
+
+@router.put(path='/customers', response_class=JSONResponse)
+async def add_customer(request: Request, db: Session = Depends(get_session)):
+  form_data = await request.form()
+  customer = Customers(form_data)
+  db.add(customer)
+  db.commit()
+    
+  smth = select(Customers)
+  result = db.exec(smth).all()
+  return {"customers":result}
 
 
   
