@@ -3,7 +3,9 @@ from sqlalchemy.exc import IntegrityError
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select # type: ignore
 from fastapi import APIRouter, Request, Depends, responses
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.encoders import jsonable_encoder
+
 from db_connect import get_session
 templates = Jinja2Templates(directory='./templates')
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
@@ -32,26 +34,11 @@ class Customers(CustomersModel, table=True):
 
 router = APIRouter()
 
-@router.get(path='/customers', response_class=HTMLResponse)
+@router.get(path='/customers', response_class=JSONResponse)
 async def get_customers(request: Request, db: Session = Depends(get_session)):
   smth = select(Customers)
   result = db.exec(smth).all()
-  return templates.TemplateResponse("Customers.html", {"request":request,"customers":result})
-
-@router.put(path='/customers', response_class=HTMLResponse)
-async def put_customers(request: Request, db: Session = Depends(get_session)):
-  print(str(request))
-  form_data = await request.form()
-  print('put customers')
-  action = form_data.get('_method')
-  key = form_data.get('id')
-  statement = select(Customers).where(Customers.customer_id == key)
-  customer = db.exec(statement).one()
-  customer.set_value_from_form(form_data)
-  
-  db.add(customer)
-  db.commit()
-  
+  return {"customers":result}
 
 @router.post(path='/customers', response_class=HTMLResponse)
 async def update_customers(request: Request, db: Session = Depends(get_session)):

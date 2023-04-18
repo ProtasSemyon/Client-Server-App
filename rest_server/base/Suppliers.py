@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select # type: ignore
 from fastapi import APIRouter, Request, Depends, responses
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from db_connect import get_session
 templates = Jinja2Templates(directory='./templates')
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
@@ -32,11 +32,11 @@ class Suppliers(SuppliersModel, table=True):
 
 router = APIRouter()
 
-@router.get(path='/suppliers', response_class=HTMLResponse)
+@router.get(path='/suppliers', response_class=JSONResponse)
 async def get_suppliers(request: Request, db: Session = Depends(get_session)):
   smth = select(Suppliers)
   result = db.exec(smth).all()
-  return templates.TemplateResponse("Suppliers.html", {"request":request,"suppliers":result})
+  return {"request":request,"suppliers":result}
 
 @router.post(path='/suppliers', response_class=HTMLResponse)
 async def update_suppliers(request: Request, db: Session = Depends(get_session)):
