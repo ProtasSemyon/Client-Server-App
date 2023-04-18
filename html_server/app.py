@@ -1,12 +1,8 @@
 from fastapi import FastAPI, Request, responses
-from fastapi.responses import HTMLResponse
+import os
+import requests
 
-from base import Customers
-from base import OrderItems
-from base import Orders
-from base import Products
-from base import Suppliers
-from base import ProductSuppliers
+from fastapi.responses import HTMLResponse
 
 import logging
 
@@ -16,16 +12,6 @@ logging.basicConfig(
     filename='app.log',
     filemode='a'
 )
-
-app = FastAPI()
-
-app.include_router(Customers.router)
-app.include_router(Products.router)
-app.include_router(Orders.router)
-app.include_router(OrderItems.router)
-app.include_router(ProductSuppliers.router)
-app.include_router(Suppliers.router)
-
 
 logger = logging.getLogger("uvicorn.access")
 logger.setLevel(logging.INFO)
@@ -39,6 +25,10 @@ handler2.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message
 #logger.addHandler(handler)
 logger.addHandler(handler2)
 
+app = FastAPI()
+
+rest_url = os.getenv('REST_SERVER') if os.getenv('REST_SERVER') is not None else '127.0.0.1:8000'
+
 @app.get(path='/', response_class=HTMLResponse)
 async def route(request: Request):
   with open("./index.html", "r") as f:
@@ -48,3 +38,9 @@ async def route(request: Request):
 @app.get(path='/navigate', response_class=HTMLResponse)
 async def navigate(page: str):
   return responses.RedirectResponse(url=page)
+
+@app.get(path='/{path}', response_class=HTMLResponse)
+async def get_page(request: Request, path: str):
+  print('text')
+  response = requests.get('http://' + str(rest_url) + '/' + path)
+  return HTMLResponse(content=response.content)

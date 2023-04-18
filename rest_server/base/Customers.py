@@ -38,13 +38,29 @@ async def get_customers(request: Request, db: Session = Depends(get_session)):
   result = db.exec(smth).all()
   return templates.TemplateResponse("Customers.html", {"request":request,"customers":result})
 
+@router.put(path='/customers', response_class=HTMLResponse)
+async def put_customers(request: Request, db: Session = Depends(get_session)):
+  print(str(request))
+  form_data = await request.form()
+  print('put customers')
+  action = form_data.get('_method')
+  key = form_data.get('id')
+  statement = select(Customers).where(Customers.customer_id == key)
+  customer = db.exec(statement).one()
+  customer.set_value_from_form(form_data)
+  
+  db.add(customer)
+  db.commit()
+  
+
 @router.post(path='/customers', response_class=HTMLResponse)
 async def update_customers(request: Request, db: Session = Depends(get_session)):
   error_message = ""
   form_data = await request.form()
-  action = form_data.get('action')
+  action = form_data.get('_method')
   key = form_data.get('id')
-  if action == '/delete':
+  
+  if action == 'DELETE':
     statement = select(Customers).where(Customers.customer_id == key)
     result = db.exec(statement).one()
     try:
@@ -53,11 +69,13 @@ async def update_customers(request: Request, db: Session = Depends(get_session))
     except IntegrityError as e:
       db.rollback()
       error_message = ERROR_MESSAGE
-  elif action =='/add':
+  elif action =='POST':
     customer = Customers(form_data)
     db.add(customer)
     db.commit()
-  elif action == '/update':
+  elif action == 'PUT':
+    print('post customers')
+
     statement = select(Customers).where(Customers.customer_id == key)
     customer = db.exec(statement).one()
     customer.set_value_from_form(form_data)

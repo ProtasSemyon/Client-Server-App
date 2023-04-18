@@ -10,10 +10,8 @@ services:
     networks:
       - gigachad
 
-  server:
-    command:
-      - "--host=0.0.0.0"
-    image: gigachadserver/html-templating
+  rest_server:
+    image: gigachadserver/rest
     build:
       context: "./server"
     environment:  
@@ -23,7 +21,18 @@ services:
       POSTGRES_DB_NAME: postgres
     networks:
       - gigachad
+  
+  html_server:
+    image: gigachadserver/html
+    build:
+      context: "./server"
+    networks:
+      - gigachad
+    environment:
+      REST_SERVER: rest_server:8000
     ports:
       - 127.0.0.1:8000:8000
+    command:
+      - "--host=0.0.0.0"
 networks:
   gigachad: {}
