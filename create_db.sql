@@ -51,13 +51,13 @@ CREATE TABLE product_suppliers (
 );
 
 
-INSERT INTO customers (customer_id, first_name, last_name, email, phone)
+INSERT INTO customers (first_name, last_name, email, phone)
 VALUES
-    (1, 'Сергей', 'Иванов', 'ivanovsergei@mail.ru', '555-1234'),
-    (2, 'Анна', 'Петрова', 'petrovaanna@gmail.com', '555-5678'),
-    (3, 'Дмитрий', 'Сидоров', 'dmitriysidorov@hotmail.com', '555-9012'),
-    (4, 'Елена', 'Кузнецова', 'kuznetsova.elena@gmail.com', '555-3456'),
-    (5, 'Иван', 'Смирнов', 'ivan_smirnov@yahoo.com', '555-7890');
+    ('Сергей', 'Иванов', 'ivanovsergei@mail.ru', '555-1234'),
+    ('Анна', 'Петрова', 'petrovaanna@gmail.com', '555-5678'),
+    ('Дмитрий', 'Сидоров', 'dmitriysidorov@hotmail.com', '555-9012'),
+    ('Елена', 'Кузнецова', 'kuznetsova.elena@gmail.com', '555-3456'),
+    ('Иван', 'Смирнов', 'ivan_smirnov@yahoo.com', '555-7890');
 
 INSERT INTO orders (customer_id, order_date, total_amount)
 VALUES
@@ -70,13 +70,13 @@ VALUES
     (5, '2022-04-02', 235.50);
 
 
-INSERT INTO products (product_id, product_name, brand, category, description, price, stock_quantity)
+INSERT INTO products (product_name, brand, category, description, price, stock_quantity)
 VALUES 
-    (1,'Laptop 15.6 inch', 'Dell', 'Laptops', 'Dell Inspiron 15 3000 Series, 15.6 inch HD, Intel Core i5-7200U, 8GB DDR4 RAM, 256GB SSD, Windows 10 Home', 699.99, 50),
-    (2,'Smartphone 6.2 inch', 'Samsung', 'Smartphones', 'Samsung Galaxy S21, 6.2 inch, 5G, 8GB RAM, 128GB storage, Phantom Gray', 799.99, 100),
-    (3,'Tablet 10.2 inch', 'Apple', 'Tablets', 'Apple iPad 10.2 inch, 8th generation, 32GB, Wi-Fi, Space Gray', 329.99, 30),
-    (4,'Smartwatch', 'Apple', 'Wearable Technology', 'Apple Watch Series 6, GPS, 44mm Space Gray Aluminum Case with Black Sport Band', 429.99, 20),
-    (5,'Wireless Earbuds', 'Sony', 'Audio Accessories', 'Sony WF-1000XM4 true wireless earbuds, noise cancelling, 8 hours battery life, black', 279.99, 50);
+    ('Laptop 15.6 inch', 'Dell', 'Laptops', 'Dell Inspiron 15 3000 Series, 15.6 inch HD, Intel Core i5-7200U, 8GB DDR4 RAM, 256GB SSD, Windows 10 Home', 699.99, 50),
+    ('Smartphone 6.2 inch', 'Samsung', 'Smartphones', 'Samsung Galaxy S21, 6.2 inch, 5G, 8GB RAM, 128GB storage, Phantom Gray', 799.99, 100),
+    ('Tablet 10.2 inch', 'Apple', 'Tablets', 'Apple iPad 10.2 inch, 8th generation, 32GB, Wi-Fi, Space Gray', 329.99, 30),
+    ('Smartwatch', 'Apple', 'Wearable Technology', 'Apple Watch Series 6, GPS, 44mm Space Gray Aluminum Case with Black Sport Band', 429.99, 20),
+    ('Wireless Earbuds', 'Sony', 'Audio Accessories', 'Sony WF-1000XM4 true wireless earbuds, noise cancelling, 8 hours battery life, black', 279.99, 50);
 
 INSERT INTO suppliers (supplier_name, contact_name, email, phone)
 VALUES

@@ -38,7 +38,8 @@ async def get_customers(db: Session = Depends(get_session)):
   return {"customers":result}
 
 @router.delete(path='/customers/{customer_id}', response_class=JSONResponse)
-async def delete_customer(customer_id, db: Session = Depends(get_session)):
+async def delete_customer(customer_id: int, db: Session = Depends(get_session)):
+  error = ""
   customer_id = int(customer_id)
   statement = select(Customers).where(Customers.customer_id == customer_id)
   result = db.exec(statement).one()
@@ -47,13 +48,14 @@ async def delete_customer(customer_id, db: Session = Depends(get_session)):
     db.commit()
   except IntegrityError as e:
     db.rollback()
+    error = ERROR_MESSAGE
     
   smth = select(Customers)
   result = db.exec(smth).all()
-  return {"customers":result, "error_message":ERROR_MESSAGE}
+  return {"customers":result, "error_message":error}
 
 @router.put(path='/customers/{customer_id}', response_class=JSONResponse)
-async def update_customer(request: Request, customer_id, db: Session = Depends(get_session)):
+async def update_customer(request: Request, customer_id: int, db: Session = Depends(get_session)):
   form_data = await request.form()
 
   statement = select(Customers).where(Customers.customer_id == customer_id)

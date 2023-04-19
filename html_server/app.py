@@ -65,6 +65,7 @@ async def get_page(request: Request, path: str):
   response = requests.get(HTTP + str(rest_url) + '/' + path)
   json_data = json.loads(jsonable_encoder(response.content))
   json_data.update({"request":request})
+  print(json_data)
   return templates.TemplateResponse(html_template_dict[path], json_data)
 
 

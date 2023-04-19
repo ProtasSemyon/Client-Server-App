@@ -1,11 +1,10 @@
 from typing import Optional
 from sqlalchemy.exc import IntegrityError
-from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select # type: ignore
-from fastapi import APIRouter, Request, Depends, responses
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import APIRouter, Request, Depends
+from fastapi.responses import JSONResponse
+
 from db_connect import get_session
-templates = Jinja2Templates(directory='./templates')
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
 
 from sqlmodel import Field, SQLModel
@@ -37,38 +36,49 @@ class Products(ProductsModel, table=True):
 router = APIRouter()
 
 @router.get(path='/products', response_class=JSONResponse)
-async def get_products(request: Request, db: Session = Depends(get_session)):
+async def get_products(db: Session = Depends(get_session)):
   smth = select(Products)
   result = db.exec(smth).all()
   return {"products":result}
 
-@router.post(path='/products', response_class=HTMLResponse)
-async def update_products(request: Request, db: Session = Depends(get_session)):
-  error_message = ""
-  form_data = await request.form()
-  action = form_data.get('action')
-  key = form_data.get('id')
-  if action == '/delete':
-    statement = select(Products).where(Products.product_id == key)
-    result = db.exec(statement).one()
-    try:
-      db.delete(result)
-      db.commit()
-    except IntegrityError as e:
-      db.rollback()
-      error_message = ERROR_MESSAGE
-  elif action =='/add':
-    products = Products(form_data)
-    db.add(products)
+@router.delete(path='/products/{product_id}', response_class=JSONResponse)
+async def delete_product(product_id: int, db: Session = Depends(get_session)):
+  error = ""
+  statement = select(Products).where(Products.product_id == product_id)
+  result = db.exec(statement).one()
+  try:
+    db.delete(result)
     db.commit()
-  elif action == '/update':
-    statement = select(Products).where(Products.product_id == key)
-    products = db.exec(statement).one()
-    products.set_value_from_form(form_data)
-    
-    db.add(products)
-    db.commit()
+  except IntegrityError as e:
+    db.rollback()
+    error = ERROR_MESSAGE
     
   smth = select(Products)
   result = db.exec(smth).all()
-  return templates.TemplateResponse("Products.html", {"request":request,"products":result, "error_message":error_message})
+  return {"products":result, "error_message":error}
+
+@router.put(path='/products/{product_id}', response_class=JSONResponse)
+async def update_product(request: Request, product_id: int, db: Session = Depends(get_session)):
+  form_data = await request.form()
+  
+  statement = select(Products).where(Products.product_id == product_id)
+  products = db.exec(statement).one()
+  products.set_value_from_form(form_data)
+  
+  db.add(products)
+  db.commit()
+  
+  smth = select(Products)
+  result = db.exec(smth).all()
+  return {"products":result}
+
+@router.put(path='/products', response_class=JSONResponse)
+async def add_product(request: Request, db: Session = Depends(get_session)):
+  form_data = await request.form() 
+  products = Products(form_data)
+  db.add(products)
+  db.commit()
+    
+  smth = select(Products)
+  result = db.exec(smth).all()
+  return {"products":result}

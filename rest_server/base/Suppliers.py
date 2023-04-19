@@ -1,11 +1,10 @@
 from typing import Optional
 from sqlalchemy.exc import IntegrityError
-from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select # type: ignore
 from fastapi import APIRouter, Request, Depends, responses
 from fastapi.responses import HTMLResponse, JSONResponse
 from db_connect import get_session
-templates = Jinja2Templates(directory='./templates')
+
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
 
 from sqlmodel import Field, SQLModel
@@ -33,38 +32,51 @@ class Suppliers(SuppliersModel, table=True):
 router = APIRouter()
 
 @router.get(path='/suppliers', response_class=JSONResponse)
-async def get_suppliers(request: Request, db: Session = Depends(get_session)):
+async def get_suppliers(db: Session = Depends(get_session)):
   smth = select(Suppliers)
   result = db.exec(smth).all()
-  return {"request":request,"suppliers":result}
+  return {"suppliers":result}
 
-@router.post(path='/suppliers', response_class=HTMLResponse)
-async def update_suppliers(request: Request, db: Session = Depends(get_session)):
-  error_message = ""
-  form_data = await request.form()
-  action = form_data.get('action')
-  key = form_data.get('id')
-  if action == '/delete':
-    statement = select(Suppliers).where(Suppliers.supplier_id == key)
-    result = db.exec(statement).one()
-    try:
-      db.delete(result)
-      db.commit()
-    except IntegrityError as e:
-      db.rollback()
-      error_message = ERROR_MESSAGE
-  elif action =='/add':
-    supplier = Suppliers(form_data)
-    db.add(supplier)
+@router.delete(path='/suppliers/{supp_id}', response_class=JSONResponse)
+async def delete_supplier(supp_id: int, db: Session = Depends(get_session)):
+  error = ""
+  statement = select(Suppliers).where(Suppliers.supplier_id == supp_id)
+  result = db.exec(statement).one()
+  try:
+    db.delete(result)
     db.commit()
-  elif action == '/update':
-    statement = select(Suppliers).where(Suppliers.supplier_id == key)
-    supplier = db.exec(statement).one()
-    supplier.set_value_from_form(form_data)
-    
-    db.add(supplier)
-    db.commit()
+  except IntegrityError as e:
+    db.rollback()
+    error = ERROR_MESSAGE
     
   smth = select(Suppliers)
   result = db.exec(smth).all()
-  return templates.TemplateResponse("Suppliers.html", {"request":request,"suppliers":result, "error_message":error_message})
+  return {"suppliers":result, "error_message":error}
+
+@router.put(path='/suppliers/{supp_id}')
+async def update_supplier(supp_id: int, request: Request, db: Session = Depends(get_session)):
+  form_data = await request.form()
+  
+  statement = select(Suppliers).where(Suppliers.supplier_id == supp_id)
+  supplier = db.exec(statement).one()
+  supplier.set_value_from_form(form_data)
+  
+  db.add(supplier)
+  db.commit()
+  
+  smth = select(Suppliers)
+  result = db.exec(smth).all()
+  return {"suppliers":result}
+    
+
+@router.put(path='/suppliers', response_class=JSONResponse)
+async def add_supplier(request: Request, db: Session = Depends(get_session)):
+  form_data = await request.form()
+
+  supplier = Suppliers(form_data)
+  db.add(supplier)
+  db.commit()
+    
+  smth = select(Suppliers)
+  result = db.exec(smth).all()
+  return {"suppliers":result}

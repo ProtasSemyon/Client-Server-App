@@ -1,11 +1,10 @@
 from typing import Optional
 from sqlalchemy.exc import IntegrityError
-from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select # type: ignore
-from fastapi import APIRouter, Request, Depends, responses
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import APIRouter, Request, Depends
+from fastapi.responses import JSONResponse
+
 from db_connect import get_session
-templates = Jinja2Templates(directory='./templates')
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
 
 from sqlmodel import Field, SQLModel
@@ -35,7 +34,43 @@ class OrderItems(OrderItemsModel, table=True):
 router = APIRouter()
 
 @router.get(path='/order_items', response_class=JSONResponse)
-async def get_order_items(request: Request, db: Session = Depends(get_session)):
+async def get_order_items(db: Session = Depends(get_session)):
+  smth = select(OrderItems, Orders.Orders, Products.Products).join(Orders.Orders).join(Products.Products)
+  result = db.exec(smth).all()
+  products = db.exec(select(Products.Products)).all()
+  orders = db.exec(select(Orders.Orders)).all()
+  print(result)
+  return {"order_items":result, "products":products, "orders":orders}
+
+@router.delete(path='/order_items/{ord_it_id}', response_class=JSONResponse)
+async def delete_order_items(ord_it_id: int, db: Session = Depends(get_session)):
+  error = ""
+  ord_it_id = int(ord_it_id)
+  statement = select(OrderItems).where(OrderItems.order_item_id == ord_it_id)
+  result = db.exec(statement).one()
+  try:
+    db.delete(result)
+    db.commit()
+  except IntegrityError:
+    db.rollback()
+    error = ERROR_MESSAGE
+    
+  smth = select(OrderItems, Orders.Orders, Products.Products).join(Orders.Orders).join(Products.Products)
+  result = db.exec(smth).all()
+  products = db.exec(select(Products.Products)).all()
+  orders = db.exec(select(Orders.Orders)).all()
+  return {"order_items":result, "products":products, "orders":orders, "error_message":error}
+
+@router.put(path='/order_items/{ord_it_id}', response_class=JSONResponse)
+async def update_order_items(request: Request, ord_it_id: int, db: Session = Depends(get_session)):
+  form_data = await request.form()
+  statement = select(OrderItems).where(OrderItems.order_item_id == ord_it_id)
+  order_items = db.exec(statement).one()
+  order_items.set_value_from_form(form_data)
+  
+  db.add(order_items)
+  db.commit()
+  
   smth = select(OrderItems, Orders.Orders, Products.Products).join(Orders.Orders).join(Products.Products)
   result = db.exec(smth).all()
   products = db.exec(select(Products.Products)).all()
@@ -43,38 +78,20 @@ async def get_order_items(request: Request, db: Session = Depends(get_session)):
 
   return {"order_items":result, "products":products, "orders":orders}
 
-@router.post(path='/order_items', response_class=HTMLResponse)
-async def update_order_items(request: Request, db: Session = Depends(get_session)):
-  error_message = ""
+@router.put(path='/order_items', response_class=JSONResponse)
+async def add_order_items(request: Request, db: Session = Depends(get_session)):
   form_data = await request.form()
-  action = form_data.get('action')
-  key = form_data.get('id')
-  if action == '/delete':
-    statement = select(OrderItems).where(OrderItems.order_item_id == key)
-    result = db.exec(statement).one()
-    try:
-      db.delete(result)
-      db.commit()
-    except IntegrityError:
-      db.rollback()
-      error_message = ERROR_MESSAGE
-  elif action =='/add':
-    order_items = OrderItems(form_data)
-    db.add(order_items)
-    db.commit()
-  elif action == '/update':
-    statement = select(OrderItems).where(OrderItems.order_item_id == key)
-    order_items = db.exec(statement).one()
-    order_items.set_value_from_form(form_data)
-    db.add(order_items)
-    db.commit()
+
+  order_items = OrderItems(form_data)
+  db.add(order_items)
+  db.commit()
     
   smth = select(OrderItems, Orders.Orders, Products.Products).join(Orders.Orders).join(Products.Products)
   result = db.exec(smth).all()
   products = db.exec(select(Products.Products)).all()
   orders = db.exec(select(Orders.Orders)).all()
 
-  return templates.TemplateResponse("OrderItems.html", {"request":request,"order_items":result, "products":products, "orders":orders})
+  return {"order_items":result, "products":products, "orders":orders}
   
 
 

@@ -1,11 +1,10 @@
 from typing import Optional
 from sqlalchemy.exc import IntegrityError
-from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select # type: ignore
-from fastapi import APIRouter, Request, Depends, responses
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import APIRouter, Request, Depends
+from fastapi.responses import JSONResponse
+
 from db_connect import get_session
-templates = Jinja2Templates(directory='./templates')
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
 
 from sqlmodel import Field, SQLModel
@@ -33,42 +32,57 @@ class Orders(OrdersModel, table=True):
 router = APIRouter()
 
 @router.get(path='/orders', response_class=JSONResponse)
-async def get_orders(request: Request, db: Session = Depends(get_session)):
+async def get_orders(db: Session = Depends(get_session)):
   smth = select(Orders, Customers.Customers).join(Customers.Customers)
   result = db.exec(smth).all()
   customers = db.exec(select(Customers.Customers)).all()
   return {"orders":result, "customers":customers}
 
-@router.post(path='/orders', response_class=HTMLResponse)
-async def update_orders(request: Request, db: Session = Depends(get_session)):
-  error_message = ""
-  form_data = await request.form()
-  action = form_data.get('action')
-  key = form_data.get('id')
-  if action == '/delete':
-    statement = select(Orders).where(Orders.order_id == key)
-    result = db.exec(statement).one()
-    try:
-      db.delete(result)
-      db.commit()
-    except IntegrityError:
-      db.rollback()
-      error_message = ERROR_MESSAGE
-  elif action =='/add':
-    order = Orders(form_data)
-    db.add(order)
+@router.delete(path='/orders/{order_id}')
+async def delete_order(order_id: int, db: Session = Depends(get_session)):
+  error = ""
+  order_id = int(order_id)
+  statement = select(Orders).where(Orders.order_id == order_id)
+  result = db.exec(statement).one()
+  try:
+    db.delete(result)
     db.commit()
-  elif action == '/update':
-    statement = select(Orders).where(Orders.order_id == key)
-    order = db.exec(statement).one()
-    order.set_value_from_form(form_data) # type: ignore
-    db.add(order)
-    db.commit()
+  except IntegrityError:
+    db.rollback()
+    error = ERROR_MESSAGE
     
   smth = select(Orders, Customers.Customers).join(Customers.Customers)
   result = db.exec(smth).all()
   customers = db.exec(select(Customers.Customers)).all()
-  return templates.TemplateResponse("Orders.html", {"request":request,"orders":result, "customers":customers, "error_message":error_message})
+  return {"orders":result, "customers":customers, "error_message":error}
+
+@router.put(path='/orders/{order_id}', response_class=JSONResponse)
+async def update_order(request: Request, order_id: int, db: Session = Depends(get_session)):
+  form_data = await request.form()
+  
+  statement = select(Orders).where(Orders.order_id == order_id)
+  order = db.exec(statement).one()
+  order.set_value_from_form(form_data) # type: ignore
+  
+  db.add(order)
+  db.commit()
+  
+  smth = select(Orders, Customers.Customers).join(Customers.Customers)
+  result = db.exec(smth).all()
+  customers = db.exec(select(Customers.Customers)).all()
+  return {"orders":result, "customers":customers}
+
+@router.put(path='/orders', response_class=JSONResponse)
+async def pdate_orders(request: Request, db: Session = Depends(get_session)):
+  form_data = await request.form()
+  order = Orders(form_data)
+  db.add(order)
+  db.commit()
+    
+  smth = select(Orders, Customers.Customers).join(Customers.Customers)
+  result = db.exec(smth).all()
+  customers = db.exec(select(Customers.Customers)).all()
+  return {"orders":result, "customers":customers}
 
 
   

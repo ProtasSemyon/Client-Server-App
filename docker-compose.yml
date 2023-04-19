@@ -13,19 +13,22 @@ services:
   rest_server:
     image: gigachadserver/rest
     build:
-      context: "./server"
+      context: "./rest_server"
+    networks:
+      - gigachad
     environment:  
       POSTGRES_USERNAME: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB_HOST: db
       POSTGRES_DB_NAME: postgres
-    networks:
-      - gigachad
+    command:
+      - "--host=0.0.0.0"
+
   
   html_server:
     image: gigachadserver/html
     build:
-      context: "./server"
+      context: "./html_server"
     networks:
       - gigachad
     environment:
