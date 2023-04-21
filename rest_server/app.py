@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, responses, requests
 from starlette.datastructures import URL
 
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 
 from base import Customers
 from base import OrderItems
@@ -42,10 +42,14 @@ handler2.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message
 logger.addHandler(handler2)
 
 @app.get(path='/', response_class=HTMLResponse)
-async def route(request: Request):
-  with open("./index.html", "r") as f:
+async def route():
+  with open("./app/index.html", "r") as f:
     html_content = f.read()
   return HTMLResponse(content=html_content)
+
+@app.get(path='/app/js/{filename}', response_class=FileResponse)
+async def get_file(filename: str):
+  return f'./app/js/{filename}'
 
 @app.get(path='/navigate', response_class=HTMLResponse)
 async def navigate(page: str):
