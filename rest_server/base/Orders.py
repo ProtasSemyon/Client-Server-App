@@ -31,14 +31,14 @@ class Orders(OrdersModel, table=True):
       
 router = APIRouter()
 
-@router.get(path='/orders', response_class=JSONResponse)
+@router.get(path='/api/orders', response_class=JSONResponse)
 async def get_orders(db: Session = Depends(get_session)):
   smth = select(Orders, Customers.Customers).join(Customers.Customers)
   result = db.exec(smth).all()
   customers = db.exec(select(Customers.Customers)).all()
   return {"orders":result, "customers":customers}
 
-@router.delete(path='/orders/{order_id}')
+@router.delete(path='/api/orders/{order_id}')
 async def delete_order(order_id: int, db: Session = Depends(get_session)):
   error = ""
   order_id = int(order_id)
@@ -56,7 +56,7 @@ async def delete_order(order_id: int, db: Session = Depends(get_session)):
   customers = db.exec(select(Customers.Customers)).all()
   return {"orders":result, "customers":customers, "error_message":error}
 
-@router.put(path='/orders/{order_id}', response_class=JSONResponse)
+@router.put(path='/api/orders/{order_id}', response_class=JSONResponse)
 async def update_order(request: Request, order_id: int, db: Session = Depends(get_session)):
   form_data = await request.form()
   
@@ -72,7 +72,7 @@ async def update_order(request: Request, order_id: int, db: Session = Depends(ge
   customers = db.exec(select(Customers.Customers)).all()
   return {"orders":result, "customers":customers}
 
-@router.put(path='/orders', response_class=JSONResponse)
+@router.put(path='/api/orders', response_class=JSONResponse)
 async def pdate_orders(request: Request, db: Session = Depends(get_session)):
   form_data = await request.form()
   order = Orders(form_data)

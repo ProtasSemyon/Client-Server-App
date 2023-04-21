@@ -29,7 +29,7 @@ class ProductSuppliers(ProductSuppliersModel, table=True):
     
 router = APIRouter()
 
-@router.get(path='/product_suppliers', response_class=JSONResponse)
+@router.get(path='/api/product_suppliers', response_class=JSONResponse)
 async def get_product_suppliers(db: Session = Depends(get_session)):
   smth = select(ProductSuppliers, Products.Products, Suppliers.Suppliers).join(Products.Products).join(Suppliers.Suppliers)
   result = db.exec(smth).all()
@@ -37,7 +37,7 @@ async def get_product_suppliers(db: Session = Depends(get_session)):
   suppliers = db.exec(select(Suppliers.Suppliers)).all()
   return {"product_suppliers":result, "products":products, "suppliers":suppliers}
 
-@router.delete(path='/product_suppliers/{p_s_id}', response_class=JSONResponse)
+@router.delete(path='/api/product_suppliers/{p_s_id}', response_class=JSONResponse)
 async def delete_product_suppliers(p_s_id: int, db: Session = Depends(get_session)):
   error = ""
   statement = select(ProductSuppliers).where(ProductSuppliers.product_supplier_id == p_s_id)
@@ -55,7 +55,7 @@ async def delete_product_suppliers(p_s_id: int, db: Session = Depends(get_sessio
   suppliers = db.exec(select(Suppliers.Suppliers)).all()
   return {"product_suppliers":result, "products":products, "suppliers":suppliers, "error_message":error}
 
-@router.put(path='/product_suppliers/{p_s_id}', response_class=JSONResponse)
+@router.put(path='/api/product_suppliers/{p_s_id}', response_class=JSONResponse)
 async def update_product_suppliers(request: Request, p_s_id: int, db: Session = Depends(get_session)):
   form_data = await request.form()
   statement = select(ProductSuppliers).where(ProductSuppliers.product_supplier_id == p_s_id)
@@ -71,7 +71,7 @@ async def update_product_suppliers(request: Request, p_s_id: int, db: Session = 
   suppliers = db.exec(select(Suppliers.Suppliers)).all()
   return {"product_suppliers":result, "products":products, "suppliers":suppliers}
 
-@router.put(path='/product_suppliers', response_class=JSONResponse)
+@router.put(path='/api/product_suppliers', response_class=JSONResponse)
 async def add_product_suppliers(request: Request, db: Session = Depends(get_session)):
   form_data = await request.form()
 

@@ -31,13 +31,13 @@ class Customers(CustomersModel, table=True):
 
 router = APIRouter()
 
-@router.get(path='/customers', response_class=JSONResponse)
+@router.get(path='/api/customers', response_class=JSONResponse)
 async def get_customers(db: Session = Depends(get_session)):
   smth = select(Customers)
   result = db.exec(smth).all()
   return {"customers":result}
 
-@router.delete(path='/customers/{customer_id}', response_class=JSONResponse)
+@router.delete(path='/api/customers/{customer_id}', response_class=JSONResponse)
 async def delete_customer(customer_id: int, db: Session = Depends(get_session)):
   error = ""
   customer_id = int(customer_id)
@@ -54,7 +54,7 @@ async def delete_customer(customer_id: int, db: Session = Depends(get_session)):
   result = db.exec(smth).all()
   return {"customers":result, "error_message":error}
 
-@router.put(path='/customers/{customer_id}', response_class=JSONResponse)
+@router.put(path='/api/customers/{customer_id}', response_class=JSONResponse)
 async def update_customer(request: Request, customer_id: int, db: Session = Depends(get_session)):
   form_data = await request.form()
 
@@ -70,7 +70,7 @@ async def update_customer(request: Request, customer_id: int, db: Session = Depe
   return {"customers":result}
  
 
-@router.put(path='/customers', response_class=JSONResponse)
+@router.put(path='/api/customers', response_class=JSONResponse)
 async def add_customer(request: Request, db: Session = Depends(get_session)):
   form_data = await request.form()
   customer = Customers(form_data)
@@ -80,6 +80,4 @@ async def add_customer(request: Request, db: Session = Depends(get_session)):
   smth = select(Customers)
   result = db.exec(smth).all()
   return {"customers":result}
-
-
   

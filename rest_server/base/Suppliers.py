@@ -31,13 +31,13 @@ class Suppliers(SuppliersModel, table=True):
 
 router = APIRouter()
 
-@router.get(path='/suppliers', response_class=JSONResponse)
+@router.get(path='/api/suppliers', response_class=JSONResponse)
 async def get_suppliers(db: Session = Depends(get_session)):
   smth = select(Suppliers)
   result = db.exec(smth).all()
   return {"suppliers":result}
 
-@router.delete(path='/suppliers/{supp_id}', response_class=JSONResponse)
+@router.delete(path='/api/suppliers/{supp_id}', response_class=JSONResponse)
 async def delete_supplier(supp_id: int, db: Session = Depends(get_session)):
   error = ""
   statement = select(Suppliers).where(Suppliers.supplier_id == supp_id)
@@ -53,7 +53,7 @@ async def delete_supplier(supp_id: int, db: Session = Depends(get_session)):
   result = db.exec(smth).all()
   return {"suppliers":result, "error_message":error}
 
-@router.put(path='/suppliers/{supp_id}')
+@router.put(path='/api/suppliers/{supp_id}')
 async def update_supplier(supp_id: int, request: Request, db: Session = Depends(get_session)):
   form_data = await request.form()
   
@@ -69,7 +69,7 @@ async def update_supplier(supp_id: int, request: Request, db: Session = Depends(
   return {"suppliers":result}
     
 
-@router.put(path='/suppliers', response_class=JSONResponse)
+@router.put(path='/api/suppliers', response_class=JSONResponse)
 async def add_supplier(request: Request, db: Session = Depends(get_session)):
   form_data = await request.form()
 

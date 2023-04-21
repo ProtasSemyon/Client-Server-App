@@ -35,13 +35,13 @@ class Products(ProductsModel, table=True):
     
 router = APIRouter()
 
-@router.get(path='/products', response_class=JSONResponse)
+@router.get(path='/api/products', response_class=JSONResponse)
 async def get_products(db: Session = Depends(get_session)):
   smth = select(Products)
   result = db.exec(smth).all()
   return {"products":result}
 
-@router.delete(path='/products/{product_id}', response_class=JSONResponse)
+@router.delete(path='/api/products/{product_id}', response_class=JSONResponse)
 async def delete_product(product_id: int, db: Session = Depends(get_session)):
   error = ""
   statement = select(Products).where(Products.product_id == product_id)
@@ -57,7 +57,7 @@ async def delete_product(product_id: int, db: Session = Depends(get_session)):
   result = db.exec(smth).all()
   return {"products":result, "error_message":error}
 
-@router.put(path='/products/{product_id}', response_class=JSONResponse)
+@router.put(path='/api/products/{product_id}', response_class=JSONResponse)
 async def update_product(request: Request, product_id: int, db: Session = Depends(get_session)):
   form_data = await request.form()
   
@@ -72,7 +72,7 @@ async def update_product(request: Request, product_id: int, db: Session = Depend
   result = db.exec(smth).all()
   return {"products":result}
 
-@router.put(path='/products', response_class=JSONResponse)
+@router.put(path='/api/products', response_class=JSONResponse)
 async def add_product(request: Request, db: Session = Depends(get_session)):
   form_data = await request.form() 
   products = Products(form_data)

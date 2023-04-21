@@ -33,7 +33,7 @@ class OrderItems(OrderItemsModel, table=True):
     
 router = APIRouter()
 
-@router.get(path='/order_items', response_class=JSONResponse)
+@router.get(path='/api/order_items', response_class=JSONResponse)
 async def get_order_items(db: Session = Depends(get_session)):
   smth = select(OrderItems, Orders.Orders, Products.Products).join(Orders.Orders).join(Products.Products)
   result = db.exec(smth).all()
@@ -42,7 +42,7 @@ async def get_order_items(db: Session = Depends(get_session)):
   print(result)
   return {"order_items":result, "products":products, "orders":orders}
 
-@router.delete(path='/order_items/{ord_it_id}', response_class=JSONResponse)
+@router.delete(path='/api/order_items/{ord_it_id}', response_class=JSONResponse)
 async def delete_order_items(ord_it_id: int, db: Session = Depends(get_session)):
   error = ""
   ord_it_id = int(ord_it_id)
@@ -61,7 +61,7 @@ async def delete_order_items(ord_it_id: int, db: Session = Depends(get_session))
   orders = db.exec(select(Orders.Orders)).all()
   return {"order_items":result, "products":products, "orders":orders, "error_message":error}
 
-@router.put(path='/order_items/{ord_it_id}', response_class=JSONResponse)
+@router.put(path='/api/order_items/{ord_it_id}', response_class=JSONResponse)
 async def update_order_items(request: Request, ord_it_id: int, db: Session = Depends(get_session)):
   form_data = await request.form()
   statement = select(OrderItems).where(OrderItems.order_item_id == ord_it_id)
@@ -78,7 +78,7 @@ async def update_order_items(request: Request, ord_it_id: int, db: Session = Dep
 
   return {"order_items":result, "products":products, "orders":orders}
 
-@router.put(path='/order_items', response_class=JSONResponse)
+@router.put(path='/api/order_items', response_class=JSONResponse)
 async def add_order_items(request: Request, db: Session = Depends(get_session)):
   form_data = await request.form()
 
