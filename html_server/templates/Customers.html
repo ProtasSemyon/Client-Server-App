@@ -7,12 +7,12 @@
       <h1>Customers</h1>
       {{error_message}}
       <table>
-        <th>
-          <td>First name</td>
-          <td>Last name</td>
-          <td>E-mail</td>
-          <td>Phone</td>
-        </th>
+        <tr>
+          <th>First name</th>
+          <th>Last name</th>
+          <th>E-mail</th>
+          <th>Phone</th>
+        </tr>
         {% for customer in customers %}
           <form method="POST">
             <tr>

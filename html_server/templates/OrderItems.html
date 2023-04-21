@@ -7,12 +7,12 @@
       <h1>Order Items</h1>
       {{error_message}}
       <table>
-        <th>
-          <td>Order</td>
-          <td>Item</td>
-          <td>Quantity</td>
-          <td>Price</td>
-        </th>
+        <tr>
+          <th>Order</th>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Price</th>
+        </tr>
         {% for ord in order_items %}
           {% with order_item=ord.OrderItems %}
           {% with order1=ord.Orders %}

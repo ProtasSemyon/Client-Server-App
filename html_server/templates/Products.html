@@ -7,14 +7,14 @@
       <h1>Products</h1>
       {{error_message}}
       <table>
-        <th>
-          <td>Product name</td>
-          <td>Brand</td>
-          <td>Category</td>
-          <td>Description</td>
-          <td>Price</td>
-          <td>Stock quantity</td>
-        </th>
+        <tr>
+          <th>Product name</th>
+          <th>Brand</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Stock quantity</th>
+        </tr>
         {% for product in products %}
           <form method="POST">
             <tr>

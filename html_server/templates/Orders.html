@@ -7,11 +7,11 @@
       <h1>Orders</h1>
       {{error_message}}
       <table>
-        <th>
-          <td>Customer</td>
-          <td>Order date</td>
-          <td>Total amount</td>
-        </th>
+        <tr>
+          <th>Customer</th>
+          <th>Order date</th>
+          <th>Total amount</th>
+        </tr>
         {% for ord in orders %}
         {% with order=ord.Orders%}
         {% with customer1=ord.Customers%}

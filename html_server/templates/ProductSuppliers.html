@@ -7,10 +7,10 @@
       <h1>Product Suppliers</h1>
       {{error_message}}
       <table>
-        <th>
-          <td>Product name</td>
-          <td>Supplier name</td>
-        </th>
+        <tr>
+          <th>Product name</th>
+          <th>Supplier name</th>
+        </tr>
         {% for prod in product_suppliers %}
         {% with product_supplier=prod.ProductSuppliers %}
         {% with product1=prod.Products %}
