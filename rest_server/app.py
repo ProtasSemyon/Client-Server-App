@@ -50,20 +50,3 @@ async def route():
 @app.get(path='/app/js/{filename}', response_class=FileResponse)
 async def get_file(filename: str):
   return f'./app/js/{filename}'
-
-@app.get(path='/navigate', response_class=HTMLResponse)
-async def navigate(page: str):
-  return responses.RedirectResponse(url=page)
-
-@app.middleware("http")
-async def rewrite_method(request: Request, call_next):
-  if request.method == "POST":
-    form_data = await request.form()
-    method = form_data.get('_method')
-    key = form_data.get('id')
-    if method != request.method :
-      request.scope["method"] = method
-      request.url
-
-  response = await call_next(request)
-  return response
