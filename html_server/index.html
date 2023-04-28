@@ -2,21 +2,24 @@
 <html>
   <head>
       <title>Main page</title>
+      <link rel="stylesheet" type="text/css" href="assets/mystyle.css" /> 
+      
   </head>
   <body>
-    <form action="/navigate" method="get">
-      <p>Choose a page:</p>
-      <select name="page">
-          <option value="/customers">Customers</option>
-          <option value="/products">Products</option>
-          <option value="/suppliers">Suppliers</option>
-          <option value="/orders">Orders</option>
-          <option value="/order_items">Order Items</option>
-
-          <option value="/product_suppliers">Product Supplier</option>
-      </select>
-      <br/><br/>
-      <button type="submit">Go!</button>
-  </form>
+    <div class="main">
+      <form action="/navigate" method="get">
+        <p>Choose a page:</p>
+        <select name="page">
+            <option value="/customers">Customers</option>
+            <option value="/products">Products</option>
+            <option value="/suppliers">Suppliers</option>
+            <option value="/orders">Orders</option>
+            <option value="/order_items">Order Items</option>
+            <option value="/product_suppliers">Product Supplier</option>
+        </select>
+        <br/><br/>
+        <button type="submit">Go!</button>
+      </form>
+    </div>
   </body>
 </html>

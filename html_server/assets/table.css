@@ -1,0 +1,71 @@
+body {
+	margin: 0;
+	background: linear-gradient(45deg, #49a09d, #5f2c82);
+	font-family: sans-serif;
+	font-weight: 100;
+	min-height: 100vh;
+}
+
+h1 {
+	font-size: 3em;
+	text-align: center;
+	color: #079dfa
+}
+
+table {
+	/* width: 800px; */
+	/* border-collapse: collapse;  */
+	overflow: hidden;
+	/* border-collapse:separate; */
+	font-size: 1.5em;
+	width: 100%;
+	/* box-shadow: 0 0 20px rgba(0,0,0,0.1); */
+}
+
+th,
+td {
+	padding: 15px;
+	/* background-color: rgba(255,255,255,0.2); */
+	color: #fff;
+	font-size: 1.5em;
+}
+
+td{
+	border: 2px solid rgba(255, 255, 255, 0.563);
+}
+
+td > input {
+	font-size: 0.7em;
+	background:rgb(177, 184, 221);
+	width: 90%;
+}
+
+select {
+	font-size: 0.7em;
+	background:rgb(177, 184, 221);
+	width: 90%;
+}
+
+select option {
+	font-size: 0.7em;
+	background:rgb(177, 184, 221);
+	width: 90%;
+}
+
+form > button {
+	width: 150px;
+	height: 70px;
+	font-size: 1.5em;
+	margin-top: 3%;
+	margin-left: 47%;
+	background: rgb(142, 154, 213);
+}
+
+button {
+	font-size: 0.7em;
+}
+
+th {
+	text-align: left;
+	color: #07c1fa
+}

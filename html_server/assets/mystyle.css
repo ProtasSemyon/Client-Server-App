@@ -1,0 +1,52 @@
+
+        body {
+  background: linear-gradient(45deg, #49a09d, #5f2c82);
+  background-color: #a4bcd1;
+ /* use a brighter shade of blue */
+}
+
+/* Increase the size of the form and button */
+form {
+  width: 400px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.5em;
+  margin-top: -10%;
+}
+
+button {
+  width: 100px;
+  height: 50px;
+  font-size: 1em;
+  background-color: #3E64AF; /* use a similar color to the button */
+  color: white;
+  font-size: 1.5em;
+  margin-top: -10%;
+}
+
+.main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+  
+select, button {
+  margin: 10px;
+  padding: 10px;
+  font-size: 1em;
+}
+
+/* Increase the font size for the "Choose a page:" text */
+form p {
+  font-size: 1.5em;
+}
+
+/* Add background color to every option */
+select option {
+  background-color: #3E64AF; /* use a similar color to the button */
+  color: white;
+  margin-top: -10%;
+}

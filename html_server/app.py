@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request, responses
 import os
 import requests
 
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.encoders import jsonable_encoder
 
 from fastapi.templating import Jinja2Templates
@@ -58,6 +58,11 @@ async def route():
 async def navigate(page: str):
   return responses.RedirectResponse(url=page)
 
+
+@app.get(path='/assets/{filename}', response_class=FileResponse)
+async def route(filename: str):
+  return FileResponse(path='./assets/'+filename)
+
 @app.get(path='/{path}', response_class=HTMLResponse)
 async def get_page(request: Request, path: str):
   if path not in html_template_dict.keys():
@@ -67,7 +72,6 @@ async def get_page(request: Request, path: str):
   json_data.update({"request":request})
   print(json_data)
   return templates.TemplateResponse(html_template_dict[path], json_data)
-
 
 @app.post(path='/{path}', response_class=HTMLResponse)
 async def post_page(request: Request, path: str):

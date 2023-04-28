@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, responses, requests
 from starlette.datastructures import URL
 
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 
 from base import Customers
 from base import OrderItems
