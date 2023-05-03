@@ -60,7 +60,7 @@ async def navigate(page: str):
 
 
 @app.get(path='/assets/{filename}', response_class=FileResponse)
-async def route(filename: str):
+async def files(filename: str):
   return FileResponse(path='./assets/'+filename)
 
 @app.get(path='/{path}', response_class=HTMLResponse)
