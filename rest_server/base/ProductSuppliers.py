@@ -5,6 +5,7 @@ from fastapi import APIRouter, Request, Depends, responses
 from fastapi.responses import JSONResponse
 
 from db_connect import get_session
+import json
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
 
 from sqlmodel import Field, SQLModel
@@ -57,7 +58,7 @@ async def delete_product_suppliers(p_s_id: int, db: Session = Depends(get_sessio
 
 @router.put(path='/api/product_suppliers/{p_s_id}', response_class=JSONResponse)
 async def update_product_suppliers(request: Request, p_s_id: int, db: Session = Depends(get_session)):
-  form_data = await request.form()
+  form_data = json.loads(await request.body())
   statement = select(ProductSuppliers).where(ProductSuppliers.product_supplier_id == p_s_id)
   product_supplier = db.exec(statement).one()
   product_supplier.set_value_from_form(form_data)
@@ -73,7 +74,7 @@ async def update_product_suppliers(request: Request, p_s_id: int, db: Session = 
 
 @router.put(path='/api/product_suppliers', response_class=JSONResponse)
 async def add_product_suppliers(request: Request, db: Session = Depends(get_session)):
-  form_data = await request.form()
+  form_data = json.loads(await request.body())
 
   product_supplier = ProductSuppliers(form_data)
   db.add(product_supplier)

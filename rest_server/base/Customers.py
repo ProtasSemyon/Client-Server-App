@@ -3,6 +3,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select # type: ignore
 from fastapi import APIRouter, Request, Depends, responses
 from fastapi.responses import JSONResponse
+import json
+
 
 from db_connect import get_session
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
@@ -56,8 +58,8 @@ async def delete_customer(customer_id: int, db: Session = Depends(get_session)):
 
 @router.put(path='/api/customers/{customer_id}', response_class=JSONResponse)
 async def update_customer(request: Request, customer_id: int, db: Session = Depends(get_session)):
-  form_data = await request.form()
-
+  form_data = json.loads(await request.body())
+  
   statement = select(Customers).where(Customers.customer_id == customer_id)
   customer = db.exec(statement).one()
   customer.set_value_from_form(form_data)
@@ -72,7 +74,8 @@ async def update_customer(request: Request, customer_id: int, db: Session = Depe
 
 @router.put(path='/api/customers', response_class=JSONResponse)
 async def add_customer(request: Request, db: Session = Depends(get_session)):
-  form_data = await request.form()
+  form_data = json.loads(await request.body())
+
   customer = Customers(form_data)
   db.add(customer)
   db.commit()

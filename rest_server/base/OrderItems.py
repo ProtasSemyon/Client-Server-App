@@ -5,6 +5,7 @@ from fastapi import APIRouter, Request, Depends
 from fastapi.responses import JSONResponse
 
 from db_connect import get_session
+import json
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
 
 from sqlmodel import Field, SQLModel
@@ -63,7 +64,7 @@ async def delete_order_items(ord_it_id: int, db: Session = Depends(get_session))
 
 @router.put(path='/api/order_items/{ord_it_id}', response_class=JSONResponse)
 async def update_order_items(request: Request, ord_it_id: int, db: Session = Depends(get_session)):
-  form_data = await request.form()
+  form_data = json.loads(await request.body())
   statement = select(OrderItems).where(OrderItems.order_item_id == ord_it_id)
   order_items = db.exec(statement).one()
   order_items.set_value_from_form(form_data)
@@ -80,7 +81,7 @@ async def update_order_items(request: Request, ord_it_id: int, db: Session = Dep
 
 @router.put(path='/api/order_items', response_class=JSONResponse)
 async def add_order_items(request: Request, db: Session = Depends(get_session)):
-  form_data = await request.form()
+  form_data = json.loads(await request.body())
 
   order_items = OrderItems(form_data)
   db.add(order_items)
