@@ -40,7 +40,6 @@ async def get_order_items(db: Session = Depends(get_session)):
   result = db.exec(smth).all()
   products = db.exec(select(Products.Products)).all()
   orders = db.exec(select(Orders.Orders)).all()
-  print(result)
   return {"order_items":result, "products":products, "orders":orders}
 
 @router.delete(path='/api/order_items/{ord_it_id}', response_class=JSONResponse)

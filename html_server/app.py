@@ -50,7 +50,7 @@ HTTP = 'http://'
 
 @app.get(path='/', response_class=HTMLResponse)
 async def route():
-  with open("./index.html", "r") as f:
+  with open("./app/index.html", "r") as f:
     html_content = f.read()
   return HTMLResponse(content=html_content)
 
@@ -73,7 +73,7 @@ async def get_page(request: Request, path: str):
 async def post_page(request: Request, path: str):
   form = await request.form()
   _id = form.get('id')
-  
+  print(form)
   match(form.get('_method')):
     case 'PUT':
       response = requests.put(HTTP + str(rest_url) + '/' + path + (('/' + str(_id)) if _id is not None else ''), data=form)
