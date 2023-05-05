@@ -11,9 +11,9 @@ services:
       - gigachad
 
   rest_server:
-    image: gigachadserver/rest
+    image: gigachadserver/SPA
     build:
-      context: "./rest_server"
+      context: "./SPA"
     networks:
       - gigachad
     environment:  
@@ -25,17 +25,5 @@ services:
       - 127.0.0.1:8000:8000
     command:
       - "--host=0.0.0.0"
-
-  
-  # html_server:
-  #   image: gigachadserver/html
-  #   build:
-  #     context: "./html_server"
-  #   networks:
-  #     - gigachad
-  #   environment:
-  #     REST_SERVER: rest_server:8000
-  #   command:
-  #     - "--host=0.0.0.0"
 networks:
   gigachad: {}
