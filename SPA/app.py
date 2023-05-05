@@ -51,6 +51,10 @@ async def route():
 async def get_file(filename: str):
   return f'./app/js/{filename}'
 
+@app.get(path='/styles.css', response_class=FileResponse)
+async def get_file():
+  return FileResponse(path='./app/styles.css')
+
 if __name__ == '__main__':
   import uvicorn
   uvicorn.run('app:app', port=8000, reload=True)  

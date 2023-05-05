@@ -11,7 +11,7 @@ services:
       - gigachad
 
   rest_server:
-    image: gigachadserver/SPA
+    image: gigachadserver/spa
     build:
       context: "./SPA"
     networks:
