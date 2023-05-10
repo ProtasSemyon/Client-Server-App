@@ -10,6 +10,8 @@ from base import Products
 from base import Suppliers
 from base import ProductSuppliers
 
+import login
+
 import logging
 
 logging.basicConfig(
@@ -27,6 +29,7 @@ app.include_router(Orders.router)
 app.include_router(OrderItems.router)
 app.include_router(ProductSuppliers.router)
 app.include_router(Suppliers.router)
+app.include_router(login.router)
 
 
 logger = logging.getLogger("uvicorn.access")
@@ -48,7 +51,7 @@ async def route():
   return HTMLResponse(content=html_content)
 
 @app.get(path='/app/js/{filename}', response_class=FileResponse)
-async def get_file(filename: str):
+async def get_js_file(filename: str):
   return f'./app/js/{filename}'
 
 @app.get(path='/styles.css', response_class=FileResponse)
@@ -58,3 +61,4 @@ async def get_file():
 if __name__ == '__main__':
   import uvicorn
   uvicorn.run('app:app', port=8000, reload=True)  
+

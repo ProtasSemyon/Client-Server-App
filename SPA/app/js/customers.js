@@ -49,19 +49,34 @@ function addRow_customers(item, tableBody) {
       email: emailInput.value,
       phone: phoneInput.value
     };
-
+    let headers
+    const jwt_token = localStorage.getItem('jwt_token');
+    if (!jwt_token) {
+      headers = {
+        'Content-Type': 'application/json',
+      }
+    } else {
+      headers = {
+        'Content-Type': 'application/json',
+        'Authorization' :'Bearer '+ jwt_token
+      }
+    }
     fetch(customersUrl + '/' + idCell.textContent, {
       method: 'PUT',
       body: JSON.stringify(dataForAdd),
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers: headers
     })
     .then(response => {
       if (response.ok) {
         console.log('Данные успешно обновлены');
       } else {
         console.error('Произошла ошибка при обновлении данных');
+        fetch(customersUrl)
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            fillTableContainer_customers(data);
+        })
       }
       return response.json()
     }).then(data => {
@@ -70,6 +85,12 @@ function addRow_customers(item, tableBody) {
     })
     .catch(error => {
       console.error('Произошла ошибка при отправке запроса на сервер', error);
+      fetch(customersUrl)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          fillTableContainer_customers(data);
+      })
     });
   })
 
@@ -164,6 +185,12 @@ function addButton_customers(tableBody) {
         console.log('Данные успешно обновлены');
       } else {
         console.error('Произошла ошибка при обновлении данных');
+        fetch(customersUrl)
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            fillTableContainer_customers(data);
+        })
       }
       return response.json()
     }).then(data => {
@@ -172,6 +199,12 @@ function addButton_customers(tableBody) {
     })
     .catch(error => {
       console.error('Произошла ошибка при отправке запроса на сервер', error);
+      fetch(customersUrl)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          fillTableContainer_customers(data);
+      })
     });
   });
 

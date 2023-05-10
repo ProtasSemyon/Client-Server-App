@@ -4,6 +4,7 @@ from sqlmodel import Session, select # type: ignore
 from fastapi import APIRouter, Request, Depends, responses
 from fastapi.responses import JSONResponse
 import json
+from login import jwt_authentication
 
 
 from db_connect import get_session
@@ -43,7 +44,7 @@ async def get_customers(db: Session = Depends(get_session)):
 async def delete_customer(customer_id: int, db: Session = Depends(get_session)):
   error = ""
   customer_id = int(customer_id)
-  statement = select(Customers).where(Customers.customer_id == customer_id)
+  statement = select(Customers).where(Customers.customer_id == customer_id) # type: ignore
   result = db.exec(statement).one()
   try:
     db.delete(result)
@@ -56,11 +57,11 @@ async def delete_customer(customer_id: int, db: Session = Depends(get_session)):
   result = db.exec(smth).all()
   return {"customers":result, "error_message":error}
 
-@router.put(path='/api/customers/{customer_id}', response_class=JSONResponse)
+@router.put(path='/api/customers/{customer_id}', response_class=JSONResponse, dependencies=[Depends(jwt_authentication)])
 async def update_customer(request: Request, customer_id: int, db: Session = Depends(get_session)):
   form_data = json.loads(await request.body())
   
-  statement = select(Customers).where(Customers.customer_id == customer_id)
+  statement = select(Customers).where(Customers.customer_id == customer_id) # type: ignore
   customer = db.exec(statement).one()
   customer.set_value_from_form(form_data)
   
