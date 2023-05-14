@@ -6,6 +6,8 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from db_connect import get_session
 
 import json
+from login import jwt_authentication
+
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
 
 from sqlmodel import Field, SQLModel
@@ -38,10 +40,10 @@ async def get_suppliers(db: Session = Depends(get_session)):
   result = db.exec(smth).all()
   return {"suppliers":result}
 
-@router.delete(path='/api/suppliers/{supp_id}', response_class=JSONResponse)
+@router.delete(path='/api/suppliers/{supp_id}', response_class=JSONResponse, dependencies=[Depends(jwt_authentication)])
 async def delete_supplier(supp_id: int, db: Session = Depends(get_session)):
   error = ""
-  statement = select(Suppliers).where(Suppliers.supplier_id == supp_id)
+  statement = select(Suppliers).where(Suppliers.supplier_id == supp_id) # type: ignore
   result = db.exec(statement).one()
   try:
     db.delete(result)
@@ -54,11 +56,11 @@ async def delete_supplier(supp_id: int, db: Session = Depends(get_session)):
   result = db.exec(smth).all()
   return {"suppliers":result, "error_message":error}
 
-@router.put(path='/api/suppliers/{supp_id}')
+@router.put(path='/api/suppliers/{supp_id}', response_class=JSONResponse, dependencies=[Depends(jwt_authentication)])
 async def update_supplier(supp_id: int, request: Request, db: Session = Depends(get_session)):
   form_data = json.loads(await request.body())
   
-  statement = select(Suppliers).where(Suppliers.supplier_id == supp_id)
+  statement = select(Suppliers).where(Suppliers.supplier_id == supp_id) # type: ignore
   supplier = db.exec(statement).one()
   supplier.set_value_from_form(form_data)
   
@@ -70,7 +72,7 @@ async def update_supplier(supp_id: int, request: Request, db: Session = Depends(
   return {"suppliers":result}
     
 
-@router.put(path='/api/suppliers', response_class=JSONResponse)
+@router.put(path='/api/suppliers', response_class=JSONResponse, dependencies=[Depends(jwt_authentication)])
 async def add_supplier(request: Request, db: Session = Depends(get_session)):
   form_data = json.loads(await request.body())
 

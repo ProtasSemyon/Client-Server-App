@@ -6,6 +6,8 @@ from fastapi.responses import JSONResponse
 
 from db_connect import get_session
 import json
+from login import jwt_authentication
+
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
 
 from sqlmodel import Field, SQLModel
@@ -40,10 +42,10 @@ async def get_orders(db: Session = Depends(get_session)):
   return {"orders":result, "customers":customers}
 
 @router.delete(path='/api/orders/{order_id}')
-async def delete_order(order_id: int, db: Session = Depends(get_session)):
+async def delete_order(order_id: int, db: Session = Depends(get_session), dependencies=[Depends(jwt_authentication)]):
   error = ""
   order_id = int(order_id)
-  statement = select(Orders).where(Orders.order_id == order_id)
+  statement = select(Orders).where(Orders.order_id == order_id) # type: ignore
   result = db.exec(statement).one()
   try:
     db.delete(result)
@@ -57,11 +59,11 @@ async def delete_order(order_id: int, db: Session = Depends(get_session)):
   customers = db.exec(select(Customers.Customers)).all()
   return {"orders":result, "customers":customers, "error_message":error}
 
-@router.put(path='/api/orders/{order_id}', response_class=JSONResponse)
+@router.put(path='/api/orders/{order_id}', response_class=JSONResponse, dependencies=[Depends(jwt_authentication)])
 async def update_order(request: Request, order_id: int, db: Session = Depends(get_session)):
   form_data = json.loads(await request.body())
   
-  statement = select(Orders).where(Orders.order_id == order_id)
+  statement = select(Orders).where(Orders.order_id == order_id) # type: ignore
   order = db.exec(statement).one()
   order.set_value_from_form(form_data) # type: ignore
   
@@ -73,7 +75,7 @@ async def update_order(request: Request, order_id: int, db: Session = Depends(ge
   customers = db.exec(select(Customers.Customers)).all()
   return {"orders":result, "customers":customers}
 
-@router.put(path='/api/orders', response_class=JSONResponse)
+@router.put(path='/api/orders', response_class=JSONResponse, dependencies=[Depends(jwt_authentication)])
 async def pdate_orders(request: Request, db: Session = Depends(get_session)):
   form_data = json.loads(await request.body())
   order = Orders(form_data)

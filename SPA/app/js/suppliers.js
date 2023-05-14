@@ -49,11 +49,14 @@ function addRow_suppliers(item, tableBody) {
       phone: phoneInput.value
     };
 
+    const jwt_token = localStorage.getItem('jwt_token');
+
     fetch(suppliersUrl + '/' + idCell.textContent, {
       method: 'PUT',
       body: JSON.stringify(dataForAdd),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization' :'Bearer '+ jwt_token
       }
     })
     .then(response => {
@@ -73,10 +76,13 @@ function addRow_suppliers(item, tableBody) {
   })
 
   deleteButton.addEventListener('click', () => {
+    const jwt_token = localStorage.getItem('jwt_token');
+
     fetch(suppliersUrl + '/' + idCell.textContent, {
       method: 'DELETE',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization' :'Bearer '+ jwt_token
       }
     })
     .then(response => {
@@ -147,11 +153,14 @@ function addButton_suppliers(tableBody) {
       phone: phoneInput.value
     };
 
+    const jwt_token = localStorage.getItem('jwt_token');
+
     fetch(suppliersUrl, {
       method: 'PUT',
       body: JSON.stringify(dataForAdd),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization' :'Bearer '+ jwt_token
       }
     })
     .then(response => {

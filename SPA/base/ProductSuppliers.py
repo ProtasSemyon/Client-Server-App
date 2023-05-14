@@ -6,6 +6,8 @@ from fastapi.responses import JSONResponse
 
 from db_connect import get_session
 import json
+from login import jwt_authentication
+
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
 
 from sqlmodel import Field, SQLModel
@@ -38,10 +40,10 @@ async def get_product_suppliers(db: Session = Depends(get_session)):
   suppliers = db.exec(select(Suppliers.Suppliers)).all()
   return {"product_suppliers":result, "products":products, "suppliers":suppliers}
 
-@router.delete(path='/api/product_suppliers/{p_s_id}', response_class=JSONResponse)
+@router.delete(path='/api/product_suppliers/{p_s_id}', response_class=JSONResponse, dependencies=[Depends(jwt_authentication)])
 async def delete_product_suppliers(p_s_id: int, db: Session = Depends(get_session)):
   error = ""
-  statement = select(ProductSuppliers).where(ProductSuppliers.product_supplier_id == p_s_id)
+  statement = select(ProductSuppliers).where(ProductSuppliers.product_supplier_id == p_s_id) # type: ignore
   result = db.exec(statement).one()
   try:
     db.delete(result)
@@ -56,10 +58,10 @@ async def delete_product_suppliers(p_s_id: int, db: Session = Depends(get_sessio
   suppliers = db.exec(select(Suppliers.Suppliers)).all()
   return {"product_suppliers":result, "products":products, "suppliers":suppliers, "error_message":error}
 
-@router.put(path='/api/product_suppliers/{p_s_id}', response_class=JSONResponse)
+@router.put(path='/api/product_suppliers/{p_s_id}', response_class=JSONResponse, dependencies=[Depends(jwt_authentication)])
 async def update_product_suppliers(request: Request, p_s_id: int, db: Session = Depends(get_session)):
   form_data = json.loads(await request.body())
-  statement = select(ProductSuppliers).where(ProductSuppliers.product_supplier_id == p_s_id)
+  statement = select(ProductSuppliers).where(ProductSuppliers.product_supplier_id == p_s_id) # type: ignore
   product_supplier = db.exec(statement).one()
   product_supplier.set_value_from_form(form_data)
   
@@ -72,7 +74,7 @@ async def update_product_suppliers(request: Request, p_s_id: int, db: Session = 
   suppliers = db.exec(select(Suppliers.Suppliers)).all()
   return {"product_suppliers":result, "products":products, "suppliers":suppliers}
 
-@router.put(path='/api/product_suppliers', response_class=JSONResponse)
+@router.put(path='/api/product_suppliers', response_class=JSONResponse, dependencies=[Depends(jwt_authentication)])
 async def add_product_suppliers(request: Request, db: Session = Depends(get_session)):
   form_data = json.loads(await request.body())
 

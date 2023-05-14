@@ -49,22 +49,15 @@ function addRow_customers(item, tableBody) {
       email: emailInput.value,
       phone: phoneInput.value
     };
-    let headers
     const jwt_token = localStorage.getItem('jwt_token');
-    if (!jwt_token) {
-      headers = {
-        'Content-Type': 'application/json',
-      }
-    } else {
-      headers = {
-        'Content-Type': 'application/json',
-        'Authorization' :'Bearer '+ jwt_token
-      }
-    }
+
     fetch(customersUrl + '/' + idCell.textContent, {
       method: 'PUT',
       body: JSON.stringify(dataForAdd),
-      headers: headers
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization' :'Bearer '+ jwt_token
+      }
     })
     .then(response => {
       if (response.ok) {
@@ -95,10 +88,13 @@ function addRow_customers(item, tableBody) {
   })
 
   deleteButton.addEventListener('click', () => {
+    const jwt_token = localStorage.getItem('jwt_token');
+
     fetch(customersUrl + '/' + idCell.textContent, {
       method: 'DELETE',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization' :'Bearer '+ jwt_token
       }
     })
     .then(response => {
@@ -106,6 +102,12 @@ function addRow_customers(item, tableBody) {
         console.log('Данные успешно обновлены');
       } else {
         console.error('Произошла ошибка при обновлении данных');
+        fetch(customersUrl)
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            fillTableContainer_customers(data);
+        })
       }
       return response.json()
     }).then(data => {
@@ -114,6 +116,12 @@ function addRow_customers(item, tableBody) {
     })
     .catch(error => {
       console.error('Произошла ошибка при отправке запроса на сервер', error);
+      fetch(customersUrl)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          fillTableContainer_customers(data);
+      })
     });
   })
 
@@ -173,11 +181,14 @@ function addButton_customers(tableBody) {
       phone: phoneInput.value
     };
 
+    const jwt_token = localStorage.getItem('jwt_token');
+
     fetch(customersUrl, {
       method: 'PUT',
       body: JSON.stringify(dataForAdd),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization' :'Bearer '+ jwt_token
       }
     })
     .then(response => {
@@ -194,7 +205,6 @@ function addButton_customers(tableBody) {
       }
       return response.json()
     }).then(data => {
-      console.log(data);
       fillTableContainer_customers(data);
     })
     .catch(error => {

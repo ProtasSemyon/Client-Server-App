@@ -6,6 +6,8 @@ from fastapi.responses import JSONResponse
 
 from db_connect import get_session
 import json
+from login import jwt_authentication
+
 ERROR_MESSAGE = "You can't delete this row: it has connections with other tables"
 
 from sqlmodel import Field, SQLModel
@@ -42,11 +44,11 @@ async def get_order_items(db: Session = Depends(get_session)):
   orders = db.exec(select(Orders.Orders)).all()
   return {"order_items":result, "products":products, "orders":orders}
 
-@router.delete(path='/api/order_items/{ord_it_id}', response_class=JSONResponse)
+@router.delete(path='/api/order_items/{ord_it_id}', response_class=JSONResponse, dependencies=[Depends(jwt_authentication)])
 async def delete_order_items(ord_it_id: int, db: Session = Depends(get_session)):
   error = ""
   ord_it_id = int(ord_it_id)
-  statement = select(OrderItems).where(OrderItems.order_item_id == ord_it_id)
+  statement = select(OrderItems).where(OrderItems.order_item_id == ord_it_id) # type: ignore
   result = db.exec(statement).one()
   try:
     db.delete(result)
@@ -61,10 +63,10 @@ async def delete_order_items(ord_it_id: int, db: Session = Depends(get_session))
   orders = db.exec(select(Orders.Orders)).all()
   return {"order_items":result, "products":products, "orders":orders, "error_message":error}
 
-@router.put(path='/api/order_items/{ord_it_id}', response_class=JSONResponse)
+@router.put(path='/api/order_items/{ord_it_id}', response_class=JSONResponse, dependencies=[Depends(jwt_authentication)])
 async def update_order_items(request: Request, ord_it_id: int, db: Session = Depends(get_session)):
   form_data = json.loads(await request.body())
-  statement = select(OrderItems).where(OrderItems.order_item_id == ord_it_id)
+  statement = select(OrderItems).where(OrderItems.order_item_id == ord_it_id) # type: ignore
   order_items = db.exec(statement).one()
   order_items.set_value_from_form(form_data)
   
@@ -78,7 +80,7 @@ async def update_order_items(request: Request, ord_it_id: int, db: Session = Dep
 
   return {"order_items":result, "products":products, "orders":orders}
 
-@router.put(path='/api/order_items', response_class=JSONResponse)
+@router.put(path='/api/order_items', response_class=JSONResponse, dependencies=[Depends(jwt_authentication)])
 async def add_order_items(request: Request, db: Session = Depends(get_session)):
   form_data = json.loads(await request.body())
 

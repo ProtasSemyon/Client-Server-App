@@ -62,12 +62,14 @@ function addRow_products(item, tableBody) {
       price: priceInput.value,
       stock_quantity: stockQuantityInput.value
     };
+    const jwt_token = localStorage.getItem('jwt_token');
 
     fetch(productsUrl + '/' + idCell.textContent, {
       method: 'PUT',
       body: JSON.stringify(dataForAdd),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization' :'Bearer '+ jwt_token
       }
     })
     .then(response => {
@@ -87,10 +89,13 @@ function addRow_products(item, tableBody) {
   })
 
   deleteButton.addEventListener('click', () => {
+    const jwt_token = localStorage.getItem('jwt_token');
+
     fetch(productsUrl + '/' + idCell.textContent, {
       method: 'DELETE',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization' :'Bearer '+ jwt_token
       }
     })
     .then(response => {
@@ -163,6 +168,8 @@ function addButton_products(tableBody) {
   stockQuantityCell.appendChild(stockQuantityInput);
 
   addButton.addEventListener('click', () => {
+    const jwt_token = localStorage.getItem('jwt_token');
+
     const dataForAdd = {
       product_name: productNameInput.value, 
       brand: brandInput.value, 
@@ -176,7 +183,8 @@ function addButton_products(tableBody) {
       method: 'PUT',
       body: JSON.stringify(dataForAdd),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization' :'Bearer '+ jwt_token
       }
     })
     .then(response => {
